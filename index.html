@@ -5,25 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Cosmic Timing">
-<meta name="theme-color" content="#0a0a0a">
-<title>Cosmic Timing</title>
+<meta name="apple-mobile-web-app-title" content="36 Shots">
+<meta name="theme-color" content="#12163a">
+<title>36 Shots — Playground</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
   :root {
-    --bg: #0a0a0a;
-    --bg2: #141414;
-    --bg3: #1c1c1c;
-    --border: rgba(255,255,255,0.08);
-    --border2: rgba(255,255,255,0.15);
-    --text: #f0ede6;
-    --text2: rgba(240,237,230,0.5);
-    --text3: rgba(240,237,230,0.25);
-    --accent: #c8b89a;
-    --accent2: #8a7a65;
+    --bg: #12163a;
+    --bg2: #1a1f4a;
+    --bg3: #222759;
+    --border: rgba(198,173,110,0.15);
+    --border2: rgba(198,173,110,0.35);
+    --text: #f0ece0;
+    --text2: rgba(240,236,224,0.6);
+    --text3: rgba(240,236,224,0.28);
+    --gold: #c6ad6e;
+    --gold2: #e8d49a;
+    --gold3: rgba(198,173,110,0.15);
     --open: #7eb89a;
     --neutral: #8a9ab8;
     --activated: #c8956a;
@@ -32,106 +33,255 @@
     --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
 
-  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; overflow: hidden; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Jost', sans-serif; overflow: hidden; }
 
-  .app { display: flex; flex-direction: column; height: 100dvh; max-width: 480px; margin: 0 auto; position: relative; }
+  .app { display: flex; flex-direction: column; height: 100dvh; max-width: 480px; margin: 0 auto; }
 
   /* STATUS BAR */
-  .status-bar { padding: calc(var(--safe-top) + 8px) 20px 8px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-  .brand { font-family: 'DM Serif Display', serif; font-size: 13px; color: var(--accent); letter-spacing: 0.02em; }
-  .week-badge { font-size: 10px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; }
+  .status-bar {
+    padding: calc(var(--safe-top) + 10px) 20px 10px;
+    display: flex; align-items: baseline; justify-content: space-between;
+    flex-shrink: 0; border-bottom: 0.5px solid var(--border);
+  }
+  .brand-wrap { display: flex; flex-direction: column; gap: 1px; }
+  .brand-app {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 400; font-style: italic;
+    color: var(--gold2); letter-spacing: 0.04em; line-height: 1;
+  }
+  .brand-company {
+    font-size: 9px; color: var(--text3); letter-spacing: 0.22em;
+    text-transform: uppercase; font-weight: 300;
+  }
+  .week-badge {
+    font-size: 9px; color: var(--text3);
+    letter-spacing: 0.18em; text-transform: uppercase; font-weight: 300;
+  }
 
   /* COUNTER */
-  .counter-section { padding: 12px 20px 16px; flex-shrink: 0; }
-  .counter-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
-  .count-num { font-family: 'DM Serif Display', serif; font-size: 52px; color: var(--text); line-height: 1; }
-  .count-denom { font-size: 13px; color: var(--text3); align-self: flex-end; padding-bottom: 6px; }
+  .counter-section { padding: 14px 20px 12px; flex-shrink: 0; }
+  .counter-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 10px; }
+  .count-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 56px; color: var(--gold2); line-height: 1; font-weight: 300;
+  }
+  .count-denom { font-size: 14px; color: var(--text3); align-self: flex-end; padding-bottom: 8px; font-weight: 300; }
   .progress-track { height: 1px; background: var(--border); position: relative; }
-  .progress-fill { height: 100%; background: var(--accent); transition: width 0.5s ease; position: absolute; top: 0; left: 0; }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold) 0%, var(--gold2) 100%);
+    transition: width 0.5s ease; position: absolute; top: 0; left: 0;
+  }
 
   /* LENS PROMPT */
-  .lens-card { margin: 0 20px 16px; padding: 14px 16px; border: 0.5px solid var(--border2); border-radius: 8px; background: var(--bg2); flex-shrink: 0; }
-  .lens-eyebrow { font-size: 9px; letter-spacing: 0.14em; color: var(--text3); text-transform: uppercase; margin-bottom: 6px; }
-  .lens-text { font-family: 'DM Serif Display', serif; font-size: 17px; color: var(--text); line-height: 1.4; font-style: italic; }
-  .lens-sub { font-size: 11px; color: var(--text3); margin-top: 5px; line-height: 1.5; }
+  .lens-card {
+    margin: 0 20px 14px; padding: 14px 16px 14px 20px;
+    border: 0.5px solid var(--border2); border-radius: 3px;
+    background: var(--bg2); flex-shrink: 0; position: relative; overflow: hidden;
+  }
+  .lens-card::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 2px; height: 100%;
+    background: linear-gradient(180deg, var(--gold2) 0%, var(--gold) 60%, transparent 100%);
+  }
+  .lens-eyebrow {
+    font-size: 8px; letter-spacing: 0.22em; color: var(--gold);
+    text-transform: uppercase; margin-bottom: 6px; font-weight: 400;
+  }
+  .lens-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; color: var(--text); line-height: 1.45;
+    font-style: italic; font-weight: 400;
+  }
+  .lens-sub { font-size: 11px; color: var(--text3); margin-top: 5px; line-height: 1.5; font-weight: 300; }
 
   /* NAV */
-  .nav { display: flex; border-top: 0.5px solid var(--border); flex-shrink: 0; padding-bottom: var(--safe-bottom); }
-  .nav-btn { flex: 1; padding: 12px 4px; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); background: none; border: none; cursor: pointer; transition: color 0.2s; display: flex; flex-direction: column; align-items: center; gap: 3px; }
-  .nav-btn.active { color: var(--accent); }
-  .nav-icon { font-size: 18px; line-height: 1; }
+  .nav {
+    display: flex; border-top: 0.5px solid var(--border);
+    flex-shrink: 0; padding-bottom: var(--safe-bottom);
+    background: var(--bg2);
+  }
+  .nav-btn {
+    flex: 1; padding: 12px 4px;
+    font-family: 'Jost', sans-serif;
+    font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--text3); background: none; border: none; cursor: pointer;
+    transition: color 0.2s; display: flex; flex-direction: column;
+    align-items: center; gap: 4px; font-weight: 300;
+  }
+  .nav-btn.active { color: var(--gold); }
+  .nav-icon {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px; font-style: italic; line-height: 1;
+  }
 
   /* SCROLLABLE CONTENT */
-  .screen { display: none; flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding: 0 20px 20px; }
+  .screen { display: none; flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding: 16px 20px 20px; }
   .screen.active { display: block; }
 
   /* GRID */
   .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; margin-bottom: 20px; }
-  .slot { aspect-ratio: 1; border-radius: 4px; background: var(--bg2); border: 0.5px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; transition: border-color 0.2s; }
+  .slot {
+    aspect-ratio: 1; border-radius: 2px;
+    background: var(--bg2); border: 0.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; position: relative; overflow: hidden; transition: border-color 0.2s;
+  }
   .slot:active { opacity: 0.7; }
   .slot.filled { border-color: var(--border2); }
   .slot img { width: 100%; height: 100%; object-fit: cover; }
-  .slot-num { font-size: 8px; color: var(--text3); }
-  .slot.active-next { border-color: var(--accent2); box-shadow: 0 0 0 1px var(--accent2); }
+  .slot-num { font-size: 8px; color: var(--text3); font-weight: 300; }
+  .slot.active-next { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold3); }
 
   /* ADD BUTTON */
-  .shoot-btn { width: 100%; padding: 16px; border: 0.5px solid var(--border2); border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); background: var(--bg2); cursor: pointer; transition: all 0.2s; margin-bottom: 20px; }
+  .shoot-btn {
+    width: 100%; padding: 15px;
+    border: 0.5px solid var(--border2); border-radius: 3px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px; font-style: italic;
+    color: var(--gold); background: var(--bg2);
+    cursor: pointer; transition: all 0.2s; margin-bottom: 24px;
+  }
   .shoot-btn:active { background: var(--bg3); }
 
   /* MUSING */
-  .section-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
-  .musing-input { width: 100%; background: transparent; border: none; border-bottom: 0.5px solid var(--border); padding: 8px 0; font-family: 'DM Mono', monospace; font-size: 14px; color: var(--text); resize: none; outline: none; min-height: 56px; line-height: 1.6; }
-  .musing-input::placeholder { color: var(--text3); font-style: italic; }
-  .musing-save-btn { margin-top: 10px; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent2); background: none; border: none; font-family: 'DM Mono', monospace; cursor: pointer; padding: 0; }
+  .section-label {
+    font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 12px; font-weight: 400;
+  }
+  .musing-input {
+    width: 100%; background: transparent; border: none;
+    border-bottom: 0.5px solid var(--border); padding: 8px 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px; color: var(--text); resize: none; outline: none;
+    min-height: 60px; line-height: 1.6; font-style: italic;
+  }
+  .musing-input::placeholder { color: var(--text3); }
+  .musing-save-btn {
+    margin-top: 12px; font-size: 9px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--gold);
+    background: none; border: none;
+    font-family: 'Jost', sans-serif; font-weight: 300; cursor: pointer; padding: 0;
+  }
 
   /* WEEK VIEW */
-  .rhythm-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 24px; }
+  .rhythm-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 20px; }
   .day-col { display: flex; flex-direction: column; gap: 3px; }
-  .day-lbl { font-size: 8px; color: var(--text3); text-align: center; letter-spacing: 0.06em; margin-bottom: 3px; }
+  .day-lbl { font-size: 8px; color: var(--text3); text-align: center; letter-spacing: 0.08em; margin-bottom: 3px; font-weight: 300; }
   .day-pip { height: 10px; border-radius: 2px; background: var(--bg3); border: 0.5px solid var(--border); transition: background 0.3s; }
-  .day-pip.lit { background: var(--accent); border-color: var(--accent); }
+  .day-pip.lit { background: var(--gold); border-color: var(--gold); }
 
   .film-strip { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; margin-bottom: 24px; }
   .film-strip::-webkit-scrollbar { display: none; }
-  .film-thumb { flex: 0 0 72px; height: 72px; border-radius: 4px; background: var(--bg2); border: 0.5px solid var(--border); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .film-thumb {
+    flex: 0 0 70px; height: 70px; border-radius: 2px;
+    background: var(--bg2); border: 0.5px solid var(--border);
+    overflow: hidden; display: flex; align-items: center; justify-content: center;
+  }
   .film-thumb img { width: 100%; height: 100%; object-fit: cover; }
   .film-thumb .slot-num { font-size: 9px; color: var(--text3); }
 
-  .musings-list { display: flex; flex-direction: column; gap: 0; }
-  .musing-item { padding: 12px 0; border-bottom: 0.5px solid var(--border); font-size: 13px; color: var(--text2); line-height: 1.6; font-style: italic; }
-  .musing-time { font-size: 9px; color: var(--text3); margin-top: 4px; font-style: normal; }
+  .musings-list { display: flex; flex-direction: column; }
+  .musing-item {
+    padding: 12px 0; border-bottom: 0.5px solid var(--border);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px; color: var(--text2); line-height: 1.6; font-style: italic;
+  }
+  .musing-time {
+    font-size: 9px; color: var(--text3); margin-top: 4px;
+    font-style: normal; font-family: 'Jost', sans-serif;
+    font-weight: 300; letter-spacing: 0.1em;
+  }
 
-  .insight-block { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 8px; padding: 14px 16px; font-size: 13px; color: var(--text2); line-height: 1.7; margin-bottom: 20px; }
-  .insight-block strong { color: var(--text); font-weight: 400; }
+  .insight-block {
+    background: var(--bg2); border: 0.5px solid var(--border2);
+    border-radius: 3px; padding: 16px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px; color: var(--text2); line-height: 1.8;
+    margin-bottom: 24px; font-style: italic;
+  }
+  .insight-block strong { color: var(--gold2); font-weight: 400; font-style: normal; }
+
+  .divider { height: 0.5px; background: var(--border); margin: 20px 0; }
 
   /* REFLECT */
-  .reflect-card { border: 0.5px solid var(--border); border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; background: var(--bg2); }
-  .reflect-q { font-family: 'DM Serif Display', serif; font-size: 15px; color: var(--text); line-height: 1.4; margin-bottom: 10px; font-style: italic; }
-  .reflect-input { width: 100%; background: transparent; border: none; border-bottom: 0.5px solid var(--border); padding: 6px 0; font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text); resize: none; outline: none; min-height: 48px; line-height: 1.6; }
+  .reflect-card {
+    border: 0.5px solid var(--border); border-radius: 3px;
+    padding: 16px; margin-bottom: 12px; background: var(--bg2);
+  }
+  .reflect-q {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px; color: var(--gold2); line-height: 1.4;
+    margin-bottom: 12px; font-style: italic; font-weight: 400;
+  }
+  .reflect-input {
+    width: 100%; background: transparent; border: none;
+    border-bottom: 0.5px solid var(--border); padding: 6px 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px; color: var(--text); resize: none; outline: none;
+    min-height: 48px; line-height: 1.6; font-style: italic;
+  }
   .reflect-input::placeholder { color: var(--text3); }
 
-  .state-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
-  .state-tag { font-size: 10px; letter-spacing: 0.08em; padding: 5px 12px; border-radius: 20px; border: 0.5px solid var(--border2); color: var(--text2); cursor: pointer; font-family: 'DM Mono', monospace; background: transparent; transition: all 0.2s; text-transform: uppercase; }
-  .state-tag.open.sel { background: var(--open); border-color: var(--open); color: #0a0a0a; }
-  .state-tag.neutral.sel { background: var(--neutral); border-color: var(--neutral); color: #0a0a0a; }
-  .state-tag.activated.sel { background: var(--activated); border-color: var(--activated); color: #0a0a0a; }
-  .state-tag.closed.sel { background: var(--closed); border-color: var(--closed); color: #0a0a0a; }
+  .state-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .state-tag {
+    font-size: 9px; letter-spacing: 0.14em; padding: 6px 14px;
+    border-radius: 20px; border: 0.5px solid var(--border2);
+    color: var(--text2); cursor: pointer;
+    font-family: 'Jost', sans-serif; background: transparent;
+    transition: all 0.2s; text-transform: uppercase; font-weight: 300;
+  }
+  .state-tag.open.sel { background: var(--open); border-color: var(--open); color: var(--bg); }
+  .state-tag.neutral.sel { background: var(--neutral); border-color: var(--neutral); color: var(--bg); }
+  .state-tag.activated.sel { background: var(--activated); border-color: var(--activated); color: var(--bg); }
+  .state-tag.closed.sel { background: var(--closed); border-color: var(--closed); color: var(--bg); }
 
-  .save-reflect-btn { width: 100%; padding: 14px; border: 0.5px solid var(--accent2); border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); background: transparent; cursor: pointer; margin-top: 8px; transition: all 0.2s; }
+  .save-reflect-btn {
+    width: 100%; padding: 15px;
+    border: 0.5px solid var(--gold); border-radius: 3px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px; font-style: italic;
+    color: var(--gold); background: transparent;
+    cursor: pointer; margin-top: 8px; transition: all 0.2s;
+  }
   .save-reflect-btn:active { background: var(--bg2); }
 
   /* TOAST */
-  .toast { position: fixed; bottom: calc(80px + var(--safe-bottom)); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--accent); color: #0a0a0a; font-size: 11px; letter-spacing: 0.08em; padding: 8px 16px; border-radius: 20px; font-family: 'DM Mono', monospace; opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap; z-index: 100; }
+  .toast {
+    position: fixed;
+    bottom: calc(76px + var(--safe-bottom));
+    left: 50%; transform: translateX(-50%) translateY(16px);
+    background: var(--gold); color: var(--bg);
+    font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 8px 18px; border-radius: 20px;
+    font-family: 'Jost', sans-serif; font-weight: 400;
+    opacity: 0; transition: all 0.3s; pointer-events: none;
+    white-space: nowrap; z-index: 100;
+  }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   /* LOADING */
-  .loading-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; transition: opacity 0.5s; }
+  .loading-overlay {
+    position: fixed; inset: 0; background: var(--bg);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 200; transition: opacity 0.7s;
+  }
   .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-  .loading-brand { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--accent); margin-bottom: 8px; }
-  .loading-sub { font-size: 11px; color: var(--text3); letter-spacing: 0.1em; }
-  .loading-dot { display: inline-block; animation: blink 1.2s infinite; }
-  .loading-dot:nth-child(2) { animation-delay: 0.2s; }
-  .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+  .loading-app {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 42px; color: var(--gold2);
+    font-style: italic; font-weight: 300;
+    letter-spacing: 0.04em; line-height: 1; margin-bottom: 4px;
+  }
+  .loading-company {
+    font-size: 9px; color: var(--text3); letter-spacing: 0.28em;
+    text-transform: uppercase; font-weight: 300; margin-bottom: 32px;
+  }
+  .loading-sub { font-size: 9px; color: var(--text3); letter-spacing: 0.2em; text-transform: uppercase; font-weight: 300; }
+  .loading-dot { display: inline-block; animation: blink 1.4s infinite; }
+  .loading-dot:nth-child(2) { animation-delay: 0.25s; }
+  .loading-dot:nth-child(3) { animation-delay: 0.5s; }
   @keyframes blink { 0%,80%,100%{opacity:0} 40%{opacity:1} }
 
   input[type="file"] { display: none; }
@@ -140,13 +290,17 @@
 <body>
 
 <div class="loading-overlay" id="loadingOverlay">
-  <div class="loading-brand">Cosmic Timing</div>
-  <div class="loading-sub">loading<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>
+  <div class="loading-app">36 Shots</div>
+  <div class="loading-company">by Playground</div>
+  <div class="loading-sub">reading the week<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>
 </div>
 
 <div class="app">
   <div class="status-bar">
-    <div class="brand">Cosmic Timing</div>
+    <div class="brand-wrap">
+      <div class="brand-app">36 Shots</div>
+      <div class="brand-company">by Playground</div>
+    </div>
     <div class="week-badge" id="weekBadge">Week 1</div>
   </div>
 
@@ -167,9 +321,8 @@
   <!-- SHOOT SCREEN -->
   <div class="screen active" id="screen-shoot">
     <div class="grid" id="imageGrid"></div>
-    <button class="shoot-btn" id="shootBtn" onclick="document.getElementById('fileInput').click()">+ Add a frame</button>
+    <button class="shoot-btn" onclick="document.getElementById('fileInput').click()">+ Add a frame</button>
     <input type="file" id="fileInput" accept="image/*" capture="environment" multiple onchange="handleFiles(event)">
-
     <div class="section-label">A musing</div>
     <textarea class="musing-input" id="musingInput" placeholder="Something you noticed, felt, or can't stop thinking about…" rows="3"></textarea>
     <button class="musing-save-btn" onclick="saveMusing()">Save musing →</button>
@@ -179,17 +332,15 @@
   <div class="screen" id="screen-week">
     <div class="section-label">Rhythm this week</div>
     <div class="rhythm-grid" id="rhythmGrid"></div>
-
     <div class="insight-block" id="insightBlock">
       <strong>0 of 36 frames.</strong> The week is open. Shoot without intention — the pattern will find you.
     </div>
-
     <div class="section-label">Film strip</div>
     <div class="film-strip" id="filmStrip"></div>
-
+    <div class="divider"></div>
     <div class="section-label">Musings</div>
     <div class="musings-list" id="musingsList">
-      <div class="musing-item" style="color:var(--text3); font-style:normal; font-size:12px;">No musings yet.</div>
+      <div class="musing-item" style="color:var(--text3);font-style:normal;font-size:13px;font-family:'Jost',sans-serif;font-weight:300;">No musings yet.</div>
     </div>
   </div>
 
@@ -216,7 +367,7 @@
         <button class="state-tag closed" onclick="selectState(this,'Closed')">Closed</button>
       </div>
     </div>
-    <button class="save-reflect-btn" onclick="saveReflection()">Save reflection</button>
+    <button class="save-reflect-btn" onclick="saveReflection()">Save this week's reflection</button>
   </div>
 
   <nav class="nav">
@@ -255,20 +406,18 @@ const LENSES = [
   { text: "Find the oldest thing near you.", sub: "Time has a face." },
 ];
 
-// Device ID — persists across sessions
-let deviceId = localStorage.getItem('ct_device_id');
+let deviceId = localStorage.getItem('pg_device_id');
 if (!deviceId) {
-  deviceId = 'ct_' + Math.random().toString(36).substr(2,9) + '_' + Date.now();
-  localStorage.setItem('ct_device_id', deviceId);
+  deviceId = 'pg_' + Math.random().toString(36).substr(2,9) + '_' + Date.now();
+  localStorage.setItem('pg_device_id', deviceId);
 }
 
-let weekNumber = parseInt(localStorage.getItem('ct_week') || '1');
-let frames = new Array(36).fill(null); // {url, slot_index}
+let weekNumber = parseInt(localStorage.getItem('pg_week') || '1');
+let frames = new Array(36).fill(null);
 let musings = [];
 let selectedState = '';
 let filledCount = 0;
 
-// Supabase helpers
 async function sb(method, path, body) {
   const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
     method,
@@ -285,18 +434,21 @@ async function sb(method, path, body) {
 }
 
 async function uploadImage(file, slotIndex) {
-  const ext = file.name.split('.').pop() || 'jpg';
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
   const path = deviceId + '/w' + weekNumber + '/' + slotIndex + '.' + ext;
   const res = await fetch(SUPABASE_URL + '/storage/v1/object/frames/' + path, {
     method: 'POST',
-    headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Content-Type': file.type },
+    headers: {
+      'apikey': ANON_KEY,
+      'Authorization': 'Bearer ' + ANON_KEY,
+      'Content-Type': file.type || 'image/jpeg'
+    },
     body: file
   });
   if (!res.ok) return null;
   return SUPABASE_URL + '/storage/v1/object/public/frames/' + path;
 }
 
-// Init grid
 function initGrid() {
   const grid = document.getElementById('imageGrid');
   grid.innerHTML = '';
@@ -332,7 +484,6 @@ function initRhythm() {
     }
     grid.appendChild(col);
   }
-  // Light up filled
   for (let i = 0; i < filledCount; i++) {
     const pip = document.getElementById('pip-' + i);
     if (pip) pip.classList.add('lit');
@@ -359,7 +510,6 @@ function initFilmStrip() {
 function updateCounter() {
   document.getElementById('countNum').textContent = filledCount;
   document.getElementById('progressFill').style.width = Math.round(filledCount/36*100) + '%';
-
   const insight = document.getElementById('insightBlock');
   if (filledCount === 0) insight.innerHTML = '<strong>0 of 36 frames.</strong> The week is open. Shoot without intention — the pattern will find you.';
   else if (filledCount < 12) insight.innerHTML = '<strong>' + filledCount + ' of 36.</strong> Early days. You\'re still deciding what to notice. Keep going without editing yourself.';
@@ -368,15 +518,13 @@ function updateCounter() {
   else insight.innerHTML = '<strong>36 of 36.</strong> Complete. Head to Reflect — your week is waiting to be understood.';
 }
 
-// Handle file upload
 async function handleFiles(event) {
   const files = Array.from(event.target.files);
   for (const file of files) {
     if (filledCount >= 36) break;
     const idx = filledCount;
-    showToast('Saving frame ' + (idx+1) + '…');
 
-    // Show preview immediately
+    // Update UI immediately
     const reader = new FileReader();
     reader.onload = ev => {
       const slot = document.getElementById('slot-' + idx);
@@ -390,8 +538,6 @@ async function handleFiles(event) {
       }
       const nextSlot = document.getElementById('slot-' + (idx+1));
       if (nextSlot) nextSlot.classList.add('active-next');
-
-      // Film strip
       const thumb = document.querySelector('#filmStrip .film-thumb:nth-child(' + (idx+1) + ')');
       if (thumb) {
         thumb.innerHTML = '';
@@ -399,18 +545,14 @@ async function handleFiles(event) {
         timg.src = ev.target.result;
         thumb.appendChild(timg);
       }
-
-      // Rhythm pip
       const pip = document.getElementById('pip-' + idx);
       if (pip) pip.classList.add('lit');
-
-      // Update counter immediately — don't wait for upload
       filledCount++;
       updateCounter();
     };
     reader.readAsDataURL(file);
 
-    // Upload to Supabase in background
+    // Save to Supabase in background
     uploadImage(file, idx).then(url => {
       if (url) {
         frames[idx] = url;
@@ -418,27 +560,26 @@ async function handleFiles(event) {
       }
     });
   }
-  showToast('Saved ✓');
+  showToast('Frame saved');
   event.target.value = '';
 }
 
 async function saveMusing() {
   const val = document.getElementById('musingInput').value.trim();
   if (!val) return;
-  showToast('Saving…');
   const result = await sb('POST', 'musings', { device_id: deviceId, week_number: weekNumber, content: val });
   if (result) {
     musings.push({ content: val, created_at: new Date().toISOString() });
     renderMusings();
     document.getElementById('musingInput').value = '';
-    showToast('Musing saved ✓');
+    showToast('Musing saved');
   }
 }
 
 function renderMusings() {
   const list = document.getElementById('musingsList');
   if (musings.length === 0) {
-    list.innerHTML = '<div class="musing-item" style="color:var(--text3);font-style:normal;font-size:12px;">No musings yet.</div>';
+    list.innerHTML = '<div class="musing-item" style="color:var(--text3);font-style:normal;font-size:13px;font-family:\'Jost\',sans-serif;font-weight:300;">No musings yet.</div>';
     return;
   }
   list.innerHTML = musings.map(m => {
@@ -463,8 +604,6 @@ async function saveReflection() {
     week_colour: document.getElementById('r-colour').value,
     emotional_state: selectedState
   };
-  showToast('Saving reflection…');
-  // Upsert
   await fetch(SUPABASE_URL + '/rest/v1/reflections', {
     method: 'POST',
     headers: {
@@ -475,7 +614,7 @@ async function saveReflection() {
     },
     body: JSON.stringify(data)
   });
-  showToast('Reflection saved ✓');
+  showToast('Reflection saved');
 }
 
 function switchScreen(name, btn) {
@@ -493,20 +632,22 @@ function showToast(msg) {
   t._timer = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-// Load existing data from Supabase
+function setLens() {
+  const day = new Date().getDay();
+  const lens = LENSES[day % LENSES.length];
+  document.getElementById('lensText').textContent = lens.text;
+  document.getElementById('lensSub').textContent = lens.sub;
+  document.getElementById('weekBadge').textContent = 'Week ' + weekNumber;
+}
+
 async function loadData() {
-  // Load frames
   const fdata = await sb('GET', 'frames?device_id=eq.' + deviceId + '&week_number=eq.' + weekNumber + '&order=slot_index.asc');
   if (fdata && fdata.length) {
     fdata.forEach(f => { frames[f.slot_index] = f.image_url; });
     filledCount = fdata.length;
   }
-
-  // Load musings
   const mdata = await sb('GET', 'musings?device_id=eq.' + deviceId + '&week_number=eq.' + weekNumber + '&order=created_at.asc');
   if (mdata) musings = mdata;
-
-  // Load reflection
   const rdata = await sb('GET', 'reflections?device_id=eq.' + deviceId + '&week_number=eq.' + weekNumber);
   if (rdata && rdata.length) {
     const r = rdata[0];
@@ -518,15 +659,6 @@ async function loadData() {
       if (tag) { tag.classList.add('sel'); selectedState = r.emotional_state; }
     }
   }
-}
-
-// Daily lens — changes each day of the week
-function setLens() {
-  const day = new Date().getDay();
-  const lens = LENSES[day % LENSES.length];
-  document.getElementById('lensText').textContent = lens.text;
-  document.getElementById('lensSub').textContent = lens.sub;
-  document.getElementById('weekBadge').textContent = 'Week ' + weekNumber;
 }
 
 async function init() {
