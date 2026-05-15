@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Playground 36">
@@ -68,12 +68,13 @@
 
   /* MUSING */
   .section-label { font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; font-weight: 400; }
-  .musing-input { width: 100%; background: transparent; border: none; border-bottom: 0.5px solid var(--border); padding: 8px 0; font-family: 'Cormorant Garamond', serif; font-size: 17px; color: var(--text); resize: none; outline: none; min-height: 60px; line-height: 1.6; font-style: italic; }
+  .musing-box { background: var(--bg2); border: 0.5px solid var(--border2); border-radius: 4px; padding: 14px 16px; margin-bottom: 20px; }
+  .musing-input { width: 100%; background: transparent; border: none; padding: 0; font-family: 'Cormorant Garamond', serif; font-size: 17px; color: var(--text); resize: none; outline: none; min-height: 72px; line-height: 1.7; font-style: italic; display: block; }
   .musing-input::placeholder { color: var(--text3); }
-  .musing-save-btn { margin-top: 12px; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); background: none; border: none; font-family: 'Jost', sans-serif; font-weight: 300; cursor: pointer; padding: 0; }
+  .musing-save-btn { margin-top: 12px; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); background: none; border: none; font-family: 'Jost', sans-serif; font-weight: 300; cursor: pointer; padding: 4px 0; display: block; }
 
   /* CIRCLES GRID */
-  .circles-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 20px; }
+  .circles-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 20px; }
   .circle-slot { aspect-ratio: 1; cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center; }
   .circle-slot svg.outline { width: 100%; height: 100%; }
   .circle-slot canvas.thumb { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; }
@@ -220,16 +221,22 @@
     <div class="grid" id="imageGrid"></div>
     <input type="file" id="fileInput" accept="image/*" capture="environment" onchange="handleFiles(event)">
     <div class="section-label">A musing</div>
-    <textarea class="musing-input" id="musingInput" placeholder="Something you noticed, felt, or can't stop thinking about…" rows="3"></textarea>
-    <button class="musing-save-btn" onclick="saveMusing()">Save musing →</button>
+    <div class="musing-box">
+      <textarea class="musing-input" id="musingInput" placeholder="Something you noticed, felt, or can't stop thinking about…" rows="4"></textarea>
+      <button class="musing-save-btn" onclick="saveMusing('musingInput')">Save →</button>
+    </div>
   </div>
 
   <!-- CIRCLES SCREEN -->
   <div class="screen" id="screen-circles">
     <div class="circles-grid" id="circlesGrid"></div>
-    <div class="section-label" style="margin-top:4px;">What does your hand keep making?</div>
-    <div class="insight-block" id="circlesInsight" style="margin-top:12px;">
+    <div class="insight-block" id="circlesInsight" style="margin-top:4px; margin-bottom:20px;">
       <strong>0 of 36 circles.</strong> Tap any circle to draw inside it. No plan required — let your hand decide.
+    </div>
+    <div class="section-label">A musing</div>
+    <div class="musing-box">
+      <textarea class="musing-input" id="circleMusingInput" placeholder="What is your hand trying to tell you…" rows="4"></textarea>
+      <button class="musing-save-btn" onclick="saveMusing('circleMusingInput')">Save →</button>
     </div>
   </div>
 
@@ -636,12 +643,19 @@ function saveCircle() {
   img.style.cssText = 'width:100%;height:100%;border-radius:50%;object-fit:cover;';
   slot.appendChild(img);
 
-  // Save to localStorage (circles are small enough)
+  // Save to localStorage
   try { localStorage.setItem('pg_circles_' + weekNumber, JSON.stringify(circles)); } catch(e) {}
 
   updateCirclesInsight();
+  updateCirclesCounter();
   closeDrawModal();
   showToast('Circle saved');
+}
+
+function updateCirclesCounter() {
+  const cf = circles.filter(Boolean).length;
+  document.getElementById('countNum').textContent = cf;
+  document.getElementById('progressFill').style.width = Math.round(cf/36*100) + '%';
 }
 
 function closeDrawModal() {
@@ -650,14 +664,15 @@ function closeDrawModal() {
 }
 
 // SHARED
-async function saveMusing() {
-  const val = document.getElementById('musingInput').value.trim();
+async function saveMusing(inputId) {
+  const inputEl = document.getElementById(inputId || 'musingInput');
+  const val = inputEl.value.trim();
   if (!val) return;
   const result = await sb('POST', 'musings', { device_id: deviceId, week_number: weekNumber, content: val });
   if (result) {
     musings.push({ content: val, created_at: new Date().toISOString() });
     renderMusings();
-    document.getElementById('musingInput').value = '';
+    inputEl.value = '';
     showToast('Musing saved');
   }
 }
@@ -729,6 +744,7 @@ function switchScreen(name, btn) {
     document.getElementById('countNum').textContent = cf;
     document.getElementById('progressFill').style.width = Math.round(cf/36*100) + '%';
     countDenom.textContent = '/ 36';
+    updateCirclesInsight();
   } else {
     brandEl.textContent = name === 'week' ? 'This Week' : 'Reflect';
     lensCard.style.display = 'none';
