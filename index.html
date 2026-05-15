@@ -795,12 +795,27 @@ async function loadData() {
   } catch(e) {}
 }
 
-async function init() {
-  setLens();
-  await loadData();
-  initGrid(); initRhythm(); initFilmStrip(); initCirclesGrid();
-  renderMusings(); updateShotsCounter();
+function hideLoader() {
   document.getElementById('loadingOverlay').classList.add('hidden');
+}
+
+async function init() {
+  // Always hide loader within 4 seconds no matter what
+  const loaderTimeout = setTimeout(hideLoader, 4000);
+  try {
+    setLens();
+    await loadData();
+    initGrid(); initRhythm(); initFilmStrip(); initCirclesGrid();
+    renderMusings(); updateShotsCounter();
+  } catch(e) {
+    console.error('Init error:', e);
+    // Still try to render what we have
+    try { initGrid(); } catch(e2) {}
+    try { initCirclesGrid(); } catch(e2) {}
+  } finally {
+    clearTimeout(loaderTimeout);
+    hideLoader();
+  }
 }
 
 init();
