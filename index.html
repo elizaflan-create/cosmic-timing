@@ -5,164 +5,102 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="36 Shots">
+<meta name="apple-mobile-web-app-title" content="Playground 36">
 <meta name="theme-color" content="#12163a">
-<title>36 Shots — Playground</title>
+<title>Playground 36</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
   :root {
-    --bg: #12163a;
-    --bg2: #1a1f4a;
-    --bg3: #222759;
-    --border: rgba(198,173,110,0.15);
-    --border2: rgba(198,173,110,0.35);
-    --text: #f0ece0;
-    --text2: rgba(240,236,224,0.6);
-    --text3: rgba(240,236,224,0.28);
-    --gold: #c6ad6e;
-    --gold2: #e8d49a;
-    --gold3: rgba(198,173,110,0.15);
-    --open: #7eb89a;
-    --neutral: #8a9ab8;
-    --activated: #c8956a;
-    --closed: #a87a8a;
-    --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --bg: #12163a; --bg2: #1a1f4a; --bg3: #222759;
+    --border: rgba(198,173,110,0.15); --border2: rgba(198,173,110,0.35);
+    --text: #f0ece0; --text2: rgba(240,236,224,0.6); --text3: rgba(240,236,224,0.28);
+    --gold: #c6ad6e; --gold2: #e8d49a; --gold3: rgba(198,173,110,0.15);
+    --open: #7eb89a; --neutral: #8a9ab8; --activated: #c8956a; --closed: #a87a8a;
+    --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
-
   html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Jost', sans-serif; overflow: hidden; }
-
   .app { display: flex; flex-direction: column; height: 100dvh; max-width: 480px; margin: 0 auto; }
 
   /* STATUS BAR */
-  .status-bar {
-    padding: calc(var(--safe-top) + 10px) 20px 10px;
-    display: flex; align-items: baseline; justify-content: space-between;
-    flex-shrink: 0; border-bottom: 0.5px solid var(--border);
-  }
+  .status-bar { padding: calc(var(--safe-top) + 10px) 20px 10px; display: flex; align-items: baseline; justify-content: space-between; flex-shrink: 0; border-bottom: 0.5px solid var(--border); }
   .brand-wrap { display: flex; flex-direction: column; gap: 1px; }
-  .brand-app {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 22px; font-weight: 400; font-style: italic;
-    color: var(--gold2); letter-spacing: 0.04em; line-height: 1;
-  }
-  .brand-company {
-    font-size: 9px; color: var(--text3); letter-spacing: 0.22em;
-    text-transform: uppercase; font-weight: 300;
-  }
-  .week-badge {
-    font-size: 9px; color: var(--text3);
-    letter-spacing: 0.18em; text-transform: uppercase; font-weight: 300;
-  }
+  .brand-app { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; font-style: italic; color: var(--gold2); letter-spacing: 0.04em; line-height: 1; }
+  .brand-company { font-size: 9px; color: var(--text3); letter-spacing: 0.22em; text-transform: uppercase; font-weight: 300; }
+  .week-badge { font-size: 9px; color: var(--text3); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 300; }
 
   /* COUNTER */
   .counter-section { padding: 14px 20px 12px; flex-shrink: 0; }
   .counter-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 10px; }
-  .count-num {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 56px; color: var(--gold2); line-height: 1; font-weight: 300;
-  }
+  .count-num { font-family: 'Cormorant Garamond', serif; font-size: 56px; color: var(--gold2); line-height: 1; font-weight: 300; }
   .count-denom { font-size: 14px; color: var(--text3); align-self: flex-end; padding-bottom: 8px; font-weight: 300; }
   .progress-track { height: 1px; background: var(--border); position: relative; }
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--gold) 0%, var(--gold2) 100%);
-    transition: width 0.5s ease; position: absolute; top: 0; left: 0;
-  }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold) 0%, var(--gold2) 100%); transition: width 0.5s ease; position: absolute; top: 0; left: 0; }
 
   /* LENS PROMPT */
-  .lens-card {
-    margin: 0 20px 14px; padding: 14px 16px 14px 20px;
-    border: 0.5px solid var(--border2); border-radius: 3px;
-    background: var(--bg2); flex-shrink: 0; position: relative; overflow: hidden;
-  }
-  .lens-card::before {
-    content: ''; position: absolute; top: 0; left: 0;
-    width: 2px; height: 100%;
-    background: linear-gradient(180deg, var(--gold2) 0%, var(--gold) 60%, transparent 100%);
-  }
-  .lens-eyebrow {
-    font-size: 8px; letter-spacing: 0.22em; color: var(--gold);
-    text-transform: uppercase; margin-bottom: 6px; font-weight: 400;
-  }
-  .lens-text {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 18px; color: var(--text); line-height: 1.45;
-    font-style: italic; font-weight: 400;
-  }
+  .lens-card { margin: 0 20px 14px; padding: 14px 16px 14px 20px; border: 0.5px solid var(--border2); border-radius: 3px; background: var(--bg2); flex-shrink: 0; position: relative; overflow: hidden; }
+  .lens-card::before { content: ''; position: absolute; top: 0; left: 0; width: 2px; height: 100%; background: linear-gradient(180deg, var(--gold2) 0%, var(--gold) 60%, transparent 100%); }
+  .lens-eyebrow { font-size: 8px; letter-spacing: 0.22em; color: var(--gold); text-transform: uppercase; margin-bottom: 6px; font-weight: 400; }
+  .lens-text { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--text); line-height: 1.45; font-style: italic; font-weight: 400; }
   .lens-sub { font-size: 11px; color: var(--text3); margin-top: 5px; line-height: 1.5; font-weight: 300; }
 
-  /* NAV */
-  .nav {
-    display: flex; border-top: 0.5px solid var(--border);
-    flex-shrink: 0; padding-bottom: var(--safe-bottom);
-    background: var(--bg2);
-  }
-  .nav-btn {
-    flex: 1; padding: 12px 4px;
-    font-family: 'Jost', sans-serif;
-    font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--text3); background: none; border: none; cursor: pointer;
-    transition: color 0.2s; display: flex; flex-direction: column;
-    align-items: center; gap: 4px; font-weight: 300;
-  }
+  /* NAV — 4 tabs */
+  .nav { display: flex; border-top: 0.5px solid var(--border); flex-shrink: 0; padding-bottom: var(--safe-bottom); background: var(--bg2); }
+  .nav-btn { flex: 1; padding: 10px 2px; font-family: 'Jost', sans-serif; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text3); background: none; border: none; cursor: pointer; transition: color 0.2s; display: flex; flex-direction: column; align-items: center; gap: 3px; font-weight: 300; }
   .nav-btn.active { color: var(--gold); }
-  .nav-icon {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 17px; font-style: italic; line-height: 1;
-  }
+  .nav-icon { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-style: italic; line-height: 1; }
 
-  /* SCROLLABLE CONTENT */
+  /* SCREENS */
   .screen { display: none; flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding: 16px 20px 20px; }
   .screen.active { display: block; }
 
-  /* GRID */
+  /* SHOTS GRID */
   .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; margin-bottom: 20px; }
-  .slot {
-    aspect-ratio: 1; border-radius: 2px;
-    background: var(--bg2); border: 0.5px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; position: relative; overflow: hidden; transition: border-color 0.2s;
-  }
+  .slot { aspect-ratio: 1; border-radius: 2px; background: var(--bg2); border: 0.5px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; transition: border-color 0.2s; }
   .slot:active { opacity: 0.7; }
   .slot.filled { border-color: var(--border2); }
   .slot img { width: 100%; height: 100%; object-fit: cover; }
   .slot-num { font-size: 8px; color: var(--text3); font-weight: 300; }
   .slot.active-next { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold3); }
 
-  /* ADD BUTTON */
-  .shoot-btn {
-    width: 100%; padding: 15px;
-    border: 0.5px solid var(--border2); border-radius: 3px;
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 17px; font-style: italic;
-    color: var(--gold); background: var(--bg2);
-    cursor: pointer; transition: all 0.2s; margin-bottom: 24px;
-  }
+  /* SHOOT BTN */
+  .shoot-btn { width: 100%; padding: 15px; border: 0.5px solid var(--border2); border-radius: 3px; font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic; color: var(--gold); background: var(--bg2); cursor: pointer; transition: all 0.2s; margin-bottom: 24px; }
   .shoot-btn:active { background: var(--bg3); }
 
   /* MUSING */
-  .section-label {
-    font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 12px; font-weight: 400;
-  }
-  .musing-input {
-    width: 100%; background: transparent; border: none;
-    border-bottom: 0.5px solid var(--border); padding: 8px 0;
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 17px; color: var(--text); resize: none; outline: none;
-    min-height: 60px; line-height: 1.6; font-style: italic;
-  }
+  .section-label { font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; font-weight: 400; }
+  .musing-input { width: 100%; background: transparent; border: none; border-bottom: 0.5px solid var(--border); padding: 8px 0; font-family: 'Cormorant Garamond', serif; font-size: 17px; color: var(--text); resize: none; outline: none; min-height: 60px; line-height: 1.6; font-style: italic; }
   .musing-input::placeholder { color: var(--text3); }
-  .musing-save-btn {
-    margin-top: 12px; font-size: 9px; letter-spacing: 0.2em;
-    text-transform: uppercase; color: var(--gold);
-    background: none; border: none;
-    font-family: 'Jost', sans-serif; font-weight: 300; cursor: pointer; padding: 0;
-  }
+  .musing-save-btn { margin-top: 12px; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); background: none; border: none; font-family: 'Jost', sans-serif; font-weight: 300; cursor: pointer; padding: 0; }
+
+  /* CIRCLES GRID */
+  .circles-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 20px; }
+  .circle-slot { aspect-ratio: 1; cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center; }
+  .circle-slot svg.outline { width: 100%; height: 100%; }
+  .circle-slot canvas.thumb { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; }
+  .circle-slot:active { opacity: 0.7; }
+
+  /* DRAW MODAL */
+  .draw-modal { position: fixed; inset: 0; background: var(--bg); z-index: 300; display: none; flex-direction: column; }
+  .draw-modal.open { display: flex; }
+  .draw-header { padding: calc(var(--safe-top) + 12px) 20px 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
+  .draw-title { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-style: italic; color: var(--gold2); }
+  .draw-close { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text3); background: none; border: none; cursor: pointer; font-family: 'Jost', sans-serif; font-weight: 300; }
+  .draw-canvas-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .draw-canvas-outer { position: relative; width: min(100%, calc(100dvh - 200px)); aspect-ratio: 1; }
+  .draw-canvas-outer svg.circle-mask { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+  #drawCanvas { width: 100%; height: 100%; border-radius: 50%; touch-action: none; display: block; cursor: crosshair; }
+  .draw-footer { padding: 12px 20px calc(var(--safe-bottom) + 12px); display: flex; align-items: center; justify-content: space-between; border-top: 0.5px solid var(--border); flex-shrink: 0; gap: 12px; }
+  .draw-tools { display: flex; gap: 8px; align-items: center; }
+  .tool-btn { width: 32px; height: 32px; border-radius: 50%; border: 0.5px solid var(--border2); background: var(--bg2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: border-color 0.2s; }
+  .tool-btn.active { border-color: var(--gold); }
+  .tool-dot { border-radius: 50%; background: var(--gold2); }
+  .size-sm { width: 6px; height: 6px; }
+  .size-md { width: 12px; height: 12px; }
+  .size-lg { width: 18px; height: 18px; }
+  .clear-btn { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text3); background: none; border: none; cursor: pointer; font-family: 'Jost', sans-serif; font-weight: 300; }
+  .done-btn { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic; color: var(--gold); background: none; border: 0.5px solid var(--border2); border-radius: 3px; padding: 8px 20px; cursor: pointer; }
 
   /* WEEK VIEW */
   .rhythm-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 20px; }
@@ -170,135 +108,96 @@
   .day-lbl { font-size: 8px; color: var(--text3); text-align: center; letter-spacing: 0.08em; margin-bottom: 3px; font-weight: 300; }
   .day-pip { height: 10px; border-radius: 2px; background: var(--bg3); border: 0.5px solid var(--border); transition: background 0.3s; }
   .day-pip.lit { background: var(--gold); border-color: var(--gold); }
-
   .film-strip { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; margin-bottom: 24px; }
   .film-strip::-webkit-scrollbar { display: none; }
-  .film-thumb {
-    flex: 0 0 70px; height: 70px; border-radius: 2px;
-    background: var(--bg2); border: 0.5px solid var(--border);
-    overflow: hidden; display: flex; align-items: center; justify-content: center;
-  }
-  .film-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .film-thumb { flex: 0 0 70px; height: 70px; border-radius: 2px; background: var(--bg2); border: 0.5px solid var(--border); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .film-thumb img, .film-thumb canvas { width: 100%; height: 100%; object-fit: cover; }
   .film-thumb .slot-num { font-size: 9px; color: var(--text3); }
-
   .musings-list { display: flex; flex-direction: column; }
-  .musing-item {
-    padding: 12px 0; border-bottom: 0.5px solid var(--border);
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 16px; color: var(--text2); line-height: 1.6; font-style: italic;
-  }
-  .musing-time {
-    font-size: 9px; color: var(--text3); margin-top: 4px;
-    font-style: normal; font-family: 'Jost', sans-serif;
-    font-weight: 300; letter-spacing: 0.1em;
-  }
-
-  .insight-block {
-    background: var(--bg2); border: 0.5px solid var(--border2);
-    border-radius: 3px; padding: 16px;
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 16px; color: var(--text2); line-height: 1.8;
-    margin-bottom: 24px; font-style: italic;
-  }
+  .musing-item { padding: 12px 0; border-bottom: 0.5px solid var(--border); font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--text2); line-height: 1.6; font-style: italic; }
+  .musing-time { font-size: 9px; color: var(--text3); margin-top: 4px; font-style: normal; font-family: 'Jost', sans-serif; font-weight: 300; letter-spacing: 0.1em; }
+  .insight-block { background: var(--bg2); border: 0.5px solid var(--border2); border-radius: 3px; padding: 16px; font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--text2); line-height: 1.8; margin-bottom: 24px; font-style: italic; }
   .insight-block strong { color: var(--gold2); font-weight: 400; font-style: normal; }
-
   .divider { height: 0.5px; background: var(--border); margin: 20px 0; }
 
   /* REFLECT */
-  .reflect-card {
-    border: 0.5px solid var(--border); border-radius: 3px;
-    padding: 16px; margin-bottom: 12px; background: var(--bg2);
-  }
-  .reflect-q {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 17px; color: var(--gold2); line-height: 1.4;
-    margin-bottom: 12px; font-style: italic; font-weight: 400;
-  }
-  .reflect-input {
-    width: 100%; background: transparent; border: none;
-    border-bottom: 0.5px solid var(--border); padding: 6px 0;
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 16px; color: var(--text); resize: none; outline: none;
-    min-height: 48px; line-height: 1.6; font-style: italic;
-  }
+  .reflect-card { border: 0.5px solid var(--border); border-radius: 3px; padding: 16px; margin-bottom: 12px; background: var(--bg2); }
+  .reflect-q { font-family: 'Cormorant Garamond', serif; font-size: 17px; color: var(--gold2); line-height: 1.4; margin-bottom: 12px; font-style: italic; font-weight: 400; }
+  .reflect-input { width: 100%; background: transparent; border: none; border-bottom: 0.5px solid var(--border); padding: 6px 0; font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--text); resize: none; outline: none; min-height: 48px; line-height: 1.6; font-style: italic; }
   .reflect-input::placeholder { color: var(--text3); }
-
   .state-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-  .state-tag {
-    font-size: 9px; letter-spacing: 0.14em; padding: 6px 14px;
-    border-radius: 20px; border: 0.5px solid var(--border2);
-    color: var(--text2); cursor: pointer;
-    font-family: 'Jost', sans-serif; background: transparent;
-    transition: all 0.2s; text-transform: uppercase; font-weight: 300;
-  }
+  .state-tag { font-size: 9px; letter-spacing: 0.14em; padding: 6px 14px; border-radius: 20px; border: 0.5px solid var(--border2); color: var(--text2); cursor: pointer; font-family: 'Jost', sans-serif; background: transparent; transition: all 0.2s; text-transform: uppercase; font-weight: 300; }
   .state-tag.open.sel { background: var(--open); border-color: var(--open); color: var(--bg); }
   .state-tag.neutral.sel { background: var(--neutral); border-color: var(--neutral); color: var(--bg); }
   .state-tag.activated.sel { background: var(--activated); border-color: var(--activated); color: var(--bg); }
   .state-tag.closed.sel { background: var(--closed); border-color: var(--closed); color: var(--bg); }
-
-  .save-reflect-btn {
-    width: 100%; padding: 15px;
-    border: 0.5px solid var(--gold); border-radius: 3px;
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 17px; font-style: italic;
-    color: var(--gold); background: transparent;
-    cursor: pointer; margin-top: 8px; transition: all 0.2s;
-  }
+  .save-reflect-btn { width: 100%; padding: 15px; border: 0.5px solid var(--gold); border-radius: 3px; font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic; color: var(--gold); background: transparent; cursor: pointer; margin-top: 8px; transition: all 0.2s; }
   .save-reflect-btn:active { background: var(--bg2); }
 
   /* TOAST */
-  .toast {
-    position: fixed;
-    bottom: calc(76px + var(--safe-bottom));
-    left: 50%; transform: translateX(-50%) translateY(16px);
-    background: var(--gold); color: var(--bg);
-    font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
-    padding: 8px 18px; border-radius: 20px;
-    font-family: 'Jost', sans-serif; font-weight: 400;
-    opacity: 0; transition: all 0.3s; pointer-events: none;
-    white-space: nowrap; z-index: 100;
-  }
+  .toast { position: fixed; bottom: calc(76px + var(--safe-bottom)); left: 50%; transform: translateX(-50%) translateY(16px); background: var(--gold); color: var(--bg); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; padding: 8px 18px; border-radius: 20px; font-family: 'Jost', sans-serif; font-weight: 400; opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap; z-index: 100; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   /* LOADING */
-  .loading-overlay {
-    position: fixed; inset: 0; background: var(--bg);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    z-index: 200; transition: opacity 0.7s;
-  }
+  .loading-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; transition: opacity 0.7s; }
   .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-  .loading-app {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 42px; color: var(--gold2);
-    font-style: italic; font-weight: 300;
-    letter-spacing: 0.04em; line-height: 1; margin-bottom: 4px;
-  }
-  .loading-company {
-    font-size: 9px; color: var(--text3); letter-spacing: 0.28em;
-    text-transform: uppercase; font-weight: 300; margin-bottom: 32px;
-  }
+  .loading-app { font-family: 'Cormorant Garamond', serif; font-size: 42px; color: var(--gold2); font-style: italic; font-weight: 300; letter-spacing: 0.04em; line-height: 1; margin-bottom: 4px; }
+  .loading-company { font-size: 9px; color: var(--text3); letter-spacing: 0.28em; text-transform: uppercase; font-weight: 300; margin-bottom: 32px; }
   .loading-sub { font-size: 9px; color: var(--text3); letter-spacing: 0.2em; text-transform: uppercase; font-weight: 300; }
   .loading-dot { display: inline-block; animation: blink 1.4s infinite; }
   .loading-dot:nth-child(2) { animation-delay: 0.25s; }
   .loading-dot:nth-child(3) { animation-delay: 0.5s; }
   @keyframes blink { 0%,80%,100%{opacity:0} 40%{opacity:1} }
-
   input[type="file"] { display: none; }
 </style>
 </head>
 <body>
 
 <div class="loading-overlay" id="loadingOverlay">
-  <div class="loading-app">36 Shots</div>
-  <div class="loading-company">by Playground</div>
-  <div class="loading-sub">reading the week<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>
+  <div class="loading-app">Playground</div>
+  <div class="loading-company">36</div>
+  <div class="loading-sub">opening the week<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>
+</div>
+
+<!-- DRAW MODAL -->
+<div class="draw-modal" id="drawModal">
+  <div class="draw-header">
+    <div class="draw-title" id="drawTitle">Circle 1</div>
+    <button class="draw-close" onclick="closeDrawModal()">Close</button>
+  </div>
+  <div class="draw-canvas-wrap">
+    <div class="draw-canvas-outer" id="drawOuter">
+      <canvas id="drawCanvas"></canvas>
+      <svg class="circle-mask" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <defs>
+          <mask id="circleMask">
+            <rect width="100" height="100" fill="white"/>
+            <circle cx="50" cy="50" r="49" fill="black"/>
+          </mask>
+          <mask id="circleInner">
+            <circle cx="50" cy="50" r="49" fill="white"/>
+          </mask>
+        </defs>
+        <rect width="100" height="100" fill="var(--bg)" mask="url(#circleMask)"/>
+        <circle cx="50" cy="50" r="49" fill="none" stroke="rgba(198,173,110,0.4)" stroke-width="0.5"/>
+      </svg>
+    </div>
+  </div>
+  <div class="draw-footer">
+    <div class="draw-tools">
+      <button class="tool-btn active" id="tool-sm" onclick="setSize(3,'sm')"><div class="tool-dot size-sm"></div></button>
+      <button class="tool-btn" id="tool-md" onclick="setSize(8,'md')"><div class="tool-dot size-md"></div></button>
+      <button class="tool-btn" id="tool-lg" onclick="setSize(16,'lg')"><div class="tool-dot size-lg"></div></button>
+    </div>
+    <button class="clear-btn" onclick="clearCanvas()">Clear</button>
+    <button class="done-btn" onclick="saveCircle()">Done →</button>
+  </div>
 </div>
 
 <div class="app">
   <div class="status-bar">
     <div class="brand-wrap">
-      <div class="brand-app">36 Shots</div>
+      <div class="brand-app" id="brandApp">36 Shots</div>
       <div class="brand-company">by Playground</div>
     </div>
     <div class="week-badge" id="weekBadge">Week 1</div>
@@ -312,8 +211,8 @@
     <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
   </div>
 
-  <div class="lens-card">
-    <div class="lens-eyebrow">Today's lens</div>
+  <div class="lens-card" id="lensCard">
+    <div class="lens-eyebrow" id="lensEyebrow">Today's lens</div>
     <div class="lens-text" id="lensText">What did you walk past without stopping?</div>
     <div class="lens-sub" id="lensSub">No beautiful images required. Trust the impulse.</div>
   </div>
@@ -328,9 +227,18 @@
     <button class="musing-save-btn" onclick="saveMusing()">Save musing →</button>
   </div>
 
+  <!-- CIRCLES SCREEN -->
+  <div class="screen" id="screen-circles">
+    <div class="circles-grid" id="circlesGrid"></div>
+    <div class="section-label" style="margin-top:4px;">What does your hand keep making?</div>
+    <div class="insight-block" id="circlesInsight" style="margin-top:12px;">
+      <strong>0 of 36 circles.</strong> Tap any circle to draw inside it. No plan required — let your hand decide.
+    </div>
+  </div>
+
   <!-- WEEK SCREEN -->
   <div class="screen" id="screen-week">
-    <div class="section-label">Rhythm this week</div>
+    <div class="section-label">Shots this week</div>
     <div class="rhythm-grid" id="rhythmGrid"></div>
     <div class="insight-block" id="insightBlock">
       <strong>0 of 36 frames.</strong> The week is open. Shoot without intention — the pattern will find you.
@@ -349,6 +257,10 @@
     <div class="reflect-card">
       <div class="reflect-q">Looking across your 36 frames — what keeps appearing?</div>
       <textarea class="reflect-input" id="r-patterns" placeholder="Edges. Light on surfaces. Things half-finished…" rows="3"></textarea>
+    </div>
+    <div class="reflect-card">
+      <div class="reflect-q">Looking across your 36 circles — what does your hand keep making?</div>
+      <textarea class="reflect-input" id="r-circles" placeholder="Faces. Waves. Something you can't quite name…" rows="3"></textarea>
     </div>
     <div class="reflect-card">
       <div class="reflect-q">What did you almost photograph but didn't?</div>
@@ -372,7 +284,10 @@
 
   <nav class="nav">
     <button class="nav-btn active" onclick="switchScreen('shoot',this)">
-      <span class="nav-icon">○</span>shoot
+      <span class="nav-icon">○</span>shots
+    </button>
+    <button class="nav-btn" onclick="switchScreen('circles',this)">
+      <span class="nav-icon">◉</span>circles
     </button>
     <button class="nav-btn" onclick="switchScreen('week',this)">
       <span class="nav-icon">◫</span>week
@@ -389,7 +304,7 @@
 const SUPABASE_URL = 'https://qlwyasdjhwarxjlwmrea.supabase.co';
 const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsd3lhc2RqaHdhcnhqbHdtcmVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4MTEzMjEsImV4cCI6MjA5NDM4NzMyMX0.iPXB-aD_l-OE44jba0YOzsVGQ_5_fckl1zWH8JDDAk4';
 
-const LENSES = [
+const SHOT_LENSES = [
   { text: "What did you walk past without stopping?", sub: "No beautiful images required. Trust the impulse." },
   { text: "Photograph something that isn't yours.", sub: "Borrowed light, borrowed space." },
   { text: "What's in the corner of the room?", sub: "The edges hold what the centre forgets." },
@@ -406,6 +321,16 @@ const LENSES = [
   { text: "Find the oldest thing near you.", sub: "Time has a face." },
 ];
 
+const CIRCLE_PROMPTS = [
+  "Turn a circle into something you've been thinking about.",
+  "What shape does this week feel like?",
+  "Draw what you cannot say out loud.",
+  "Fill it with whatever your hand wants to make.",
+  "What is hiding inside this circle?",
+  "Draw the feeling, not the thing.",
+  "Let the circle become something unexpected.",
+];
+
 let deviceId = localStorage.getItem('pg_device_id');
 if (!deviceId) {
   deviceId = 'pg_' + Math.random().toString(36).substr(2,9) + '_' + Date.now();
@@ -414,19 +339,22 @@ if (!deviceId) {
 
 let weekNumber = parseInt(localStorage.getItem('pg_week') || '1');
 let frames = new Array(36).fill(null);
+let circles = new Array(36).fill(null); // dataURLs
 let musings = [];
 let selectedState = '';
 let filledCount = 0;
+let circlesFilled = 0;
+let currentCircleIdx = -1;
+let brushSize = 3;
+let isDrawing = false;
+let lastX = 0, lastY = 0;
+let currentScreen = 'shoot';
 
+// Supabase
 async function sb(method, path, body) {
   const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
     method,
-    headers: {
-      'apikey': ANON_KEY,
-      'Authorization': 'Bearer ' + ANON_KEY,
-      'Content-Type': 'application/json',
-      'Prefer': method === 'POST' ? 'return=representation' : ''
-    },
+    headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Content-Type': 'application/json', 'Prefer': method === 'POST' ? 'return=representation' : '' },
     body: body ? JSON.stringify(body) : undefined
   });
   if (!res.ok) return null;
@@ -438,17 +366,14 @@ async function uploadImage(file, slotIndex) {
   const path = deviceId + '/w' + weekNumber + '/' + slotIndex + '.' + ext;
   const res = await fetch(SUPABASE_URL + '/storage/v1/object/frames/' + path, {
     method: 'POST',
-    headers: {
-      'apikey': ANON_KEY,
-      'Authorization': 'Bearer ' + ANON_KEY,
-      'Content-Type': file.type || 'image/jpeg'
-    },
+    headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Content-Type': file.type || 'image/jpeg' },
     body: file
   });
   if (!res.ok) return null;
   return SUPABASE_URL + '/storage/v1/object/public/frames/' + path;
 }
 
+// SHOTS
 function initGrid() {
   const grid = document.getElementById('imageGrid');
   grid.innerHTML = '';
@@ -478,8 +403,7 @@ function initRhythm() {
     col.innerHTML = '<div class="day-lbl">' + days[d] + '</div>';
     for (let s = 0; s < 5; s++) {
       const pip = document.createElement('div');
-      pip.className = 'day-pip';
-      pip.id = 'pip-' + (d*5+s);
+      pip.className = 'day-pip'; pip.id = 'pip-' + (d*5+s);
       col.appendChild(pip);
     }
     grid.appendChild(col);
@@ -498,8 +422,7 @@ function initFilmStrip() {
     thumb.className = 'film-thumb';
     if (frames[i]) {
       const img = document.createElement('img');
-      img.src = frames[i];
-      thumb.appendChild(img);
+      img.src = frames[i]; thumb.appendChild(img);
     } else {
       thumb.innerHTML = '<span class="slot-num">' + (i+1) + '</span>';
     }
@@ -507,13 +430,13 @@ function initFilmStrip() {
   }
 }
 
-function updateCounter() {
+function updateShotsCounter() {
   document.getElementById('countNum').textContent = filledCount;
   document.getElementById('progressFill').style.width = Math.round(filledCount/36*100) + '%';
   const insight = document.getElementById('insightBlock');
   if (filledCount === 0) insight.innerHTML = '<strong>0 of 36 frames.</strong> The week is open. Shoot without intention — the pattern will find you.';
-  else if (filledCount < 12) insight.innerHTML = '<strong>' + filledCount + ' of 36.</strong> Early days. You\'re still deciding what to notice. Keep going without editing yourself.';
-  else if (filledCount < 24) insight.innerHTML = '<strong>' + filledCount + ' of 36.</strong> You\'re in the middle. Something is probably repeating — you might not see it yet.';
+  else if (filledCount < 12) insight.innerHTML = '<strong>' + filledCount + ' of 36.</strong> Early days. Keep going without editing yourself.';
+  else if (filledCount < 24) insight.innerHTML = '<strong>' + filledCount + ' of 36.</strong> Something is probably repeating — you might not see it yet.';
   else if (filledCount < 36) insight.innerHTML = '<strong>' + filledCount + ' of 36.</strong> The last stretch. The final frames often reveal the most.';
   else insight.innerHTML = '<strong>36 of 36.</strong> Complete. Head to Reflect — your week is waiting to be understood.';
 }
@@ -523,8 +446,6 @@ async function handleFiles(event) {
   for (const file of files) {
     if (filledCount >= 36) break;
     const idx = filledCount;
-
-    // Update UI immediately
     const reader = new FileReader();
     reader.onload = ev => {
       const slot = document.getElementById('slot-' + idx);
@@ -539,31 +460,163 @@ async function handleFiles(event) {
       const nextSlot = document.getElementById('slot-' + (idx+1));
       if (nextSlot) nextSlot.classList.add('active-next');
       const thumb = document.querySelector('#filmStrip .film-thumb:nth-child(' + (idx+1) + ')');
-      if (thumb) {
-        thumb.innerHTML = '';
-        const timg = document.createElement('img');
-        timg.src = ev.target.result;
-        thumb.appendChild(timg);
-      }
+      if (thumb) { thumb.innerHTML = ''; const ti = document.createElement('img'); ti.src = ev.target.result; thumb.appendChild(ti); }
       const pip = document.getElementById('pip-' + idx);
       if (pip) pip.classList.add('lit');
       filledCount++;
-      updateCounter();
+      updateShotsCounter();
     };
     reader.readAsDataURL(file);
-
-    // Save to Supabase in background
     uploadImage(file, idx).then(url => {
-      if (url) {
-        frames[idx] = url;
-        sb('POST', 'frames', { device_id: deviceId, week_number: weekNumber, slot_index: idx, image_url: url });
-      }
+      if (url) { frames[idx] = url; sb('POST', 'frames', { device_id: deviceId, week_number: weekNumber, slot_index: idx, image_url: url }); }
     });
   }
   showToast('Frame saved');
   event.target.value = '';
 }
 
+// CIRCLES
+function initCirclesGrid() {
+  const grid = document.getElementById('circlesGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 36; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'circle-slot';
+    slot.id = 'cslot-' + i;
+    slot.onclick = () => openDrawModal(i);
+
+    if (circles[i]) {
+      const img = document.createElement('img');
+      img.src = circles[i];
+      img.style.cssText = 'width:100%;height:100%;border-radius:50%;object-fit:cover;';
+      slot.appendChild(img);
+    } else {
+      const svgNS = 'http://www.w3.org/2000/svg';
+      const svg = document.createElementNS(svgNS, 'svg');
+      svg.setAttribute('viewBox','0 0 100 100');
+      svg.classList.add('outline');
+      const circle = document.createElementNS(svgNS, 'circle');
+      circle.setAttribute('cx','50'); circle.setAttribute('cy','50'); circle.setAttribute('r','47');
+      circle.setAttribute('fill','none'); circle.setAttribute('stroke','rgba(198,173,110,0.3)'); circle.setAttribute('stroke-width','1');
+      svg.appendChild(circle);
+      const text = document.createElementNS(svgNS, 'text');
+      text.setAttribute('x','50'); text.setAttribute('y','54'); text.setAttribute('text-anchor','middle');
+      text.setAttribute('font-size','14'); text.setAttribute('fill','rgba(240,236,224,0.15)'); text.setAttribute('font-family','Jost,sans-serif');
+      text.textContent = i+1;
+      svg.appendChild(text);
+      slot.appendChild(svg);
+    }
+    grid.appendChild(slot);
+  }
+  updateCirclesInsight();
+}
+
+function updateCirclesInsight() {
+  circlesFilled = circles.filter(Boolean).length;
+  const el = document.getElementById('circlesInsight');
+  if (circlesFilled === 0) el.innerHTML = '<strong>0 of 36 circles.</strong> Tap any circle to draw inside it. No plan required — let your hand decide.';
+  else if (circlesFilled < 12) el.innerHTML = '<strong>' + circlesFilled + ' of 36 circles.</strong> Your hand is warming up. What keeps appearing?';
+  else if (circlesFilled < 24) el.innerHTML = '<strong>' + circlesFilled + ' of 36.</strong> The pattern is forming. You may not see it yet — keep going.';
+  else if (circlesFilled < 36) el.innerHTML = '<strong>' + circlesFilled + ' of 36.</strong> Almost there. The last circles are often the most honest.';
+  else el.innerHTML = '<strong>36 circles complete.</strong> Look at them all together. What does your hand keep making?';
+}
+
+// DRAW MODAL
+function openDrawModal(idx) {
+  currentCircleIdx = idx;
+  const modal = document.getElementById('drawModal');
+  document.getElementById('drawTitle').textContent = 'Circle ' + (idx+1);
+  modal.classList.add('open');
+
+  const canvas = document.getElementById('drawCanvas');
+  const outer = document.getElementById('drawOuter');
+  const size = outer.offsetWidth;
+  canvas.width = size; canvas.height = size;
+
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#12163a';
+  ctx.fillRect(0, 0, size, size);
+
+  // Load existing drawing
+  if (circles[idx]) {
+    const img = new Image();
+    img.onload = () => ctx.drawImage(img, 0, 0, size, size);
+    img.src = circles[idx];
+  }
+
+  // Draw events
+  canvas.onpointerdown = e => { isDrawing = true; const pos = getPos(e, canvas); lastX = pos.x; lastY = pos.y; canvas.setPointerCapture(e.pointerId); };
+  canvas.onpointermove = e => { if (!isDrawing) return; const pos = getPos(e, canvas); draw(ctx, lastX, lastY, pos.x, pos.y); lastX = pos.x; lastY = pos.y; };
+  canvas.onpointerup = () => isDrawing = false;
+  canvas.onpointercancel = () => isDrawing = false;
+}
+
+function getPos(e, canvas) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
+}
+
+function draw(ctx, x1, y1, x2, y2) {
+  const size = ctx.canvas.width;
+  const cx = size / 2, cy = size / 2, r = size / 2 - 2;
+  // Clip to circle
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.strokeStyle = 'rgba(232,212,154,0.9)';
+  ctx.lineWidth = brushSize * (size / 300);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function setSize(size, name) {
+  brushSize = size;
+  document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tool-' + name).classList.add('active');
+}
+
+function clearCanvas() {
+  const canvas = document.getElementById('drawCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#12163a';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function saveCircle() {
+  const canvas = document.getElementById('drawCanvas');
+  const dataURL = canvas.toDataURL('image/png');
+  circles[currentCircleIdx] = dataURL;
+
+  // Update grid slot
+  const slot = document.getElementById('cslot-' + currentCircleIdx);
+  slot.innerHTML = '';
+  const img = document.createElement('img');
+  img.src = dataURL;
+  img.style.cssText = 'width:100%;height:100%;border-radius:50%;object-fit:cover;';
+  slot.appendChild(img);
+
+  // Save to localStorage (circles are small enough)
+  try { localStorage.setItem('pg_circles_' + weekNumber, JSON.stringify(circles)); } catch(e) {}
+
+  updateCirclesInsight();
+  closeDrawModal();
+  showToast('Circle saved');
+}
+
+function closeDrawModal() {
+  document.getElementById('drawModal').classList.remove('open');
+  isDrawing = false;
+}
+
+// SHARED
 async function saveMusing() {
   const val = document.getElementById('musingInput').value.trim();
   if (!val) return;
@@ -578,10 +631,7 @@ async function saveMusing() {
 
 function renderMusings() {
   const list = document.getElementById('musingsList');
-  if (musings.length === 0) {
-    list.innerHTML = '<div class="musing-item" style="color:var(--text3);font-style:normal;font-size:13px;font-family:\'Jost\',sans-serif;font-weight:300;">No musings yet.</div>';
-    return;
-  }
+  if (musings.length === 0) { list.innerHTML = '<div class="musing-item" style="color:var(--text3);font-style:normal;font-size:13px;font-family:\'Jost\',sans-serif;font-weight:300;">No musings yet.</div>'; return; }
   list.innerHTML = musings.map(m => {
     const d = new Date(m.created_at);
     const time = d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
@@ -591,14 +641,12 @@ function renderMusings() {
 
 function selectState(el, state) {
   document.querySelectorAll('.state-tag').forEach(t => t.classList.remove('sel'));
-  el.classList.add('sel');
-  selectedState = state;
+  el.classList.add('sel'); selectedState = state;
 }
 
 async function saveReflection() {
   const data = {
-    device_id: deviceId,
-    week_number: weekNumber,
+    device_id: deviceId, week_number: weekNumber,
     patterns: document.getElementById('r-patterns').value,
     near_misses: document.getElementById('r-nearmisses').value,
     week_colour: document.getElementById('r-colour').value,
@@ -606,12 +654,7 @@ async function saveReflection() {
   };
   await fetch(SUPABASE_URL + '/rest/v1/reflections', {
     method: 'POST',
-    headers: {
-      'apikey': ANON_KEY,
-      'Authorization': 'Bearer ' + ANON_KEY,
-      'Content-Type': 'application/json',
-      'Prefer': 'resolution=merge-duplicates'
-    },
+    headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
     body: JSON.stringify(data)
   });
   showToast('Reflection saved');
@@ -622,19 +665,56 @@ function switchScreen(name, btn) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
   btn.classList.add('active');
+  currentScreen = name;
+
+  // Update header
+  const brandEl = document.getElementById('brandApp');
+  const lensCard = document.getElementById('lensCard');
+  const lensEyebrow = document.getElementById('lensEyebrow');
+  const lensText = document.getElementById('lensText');
+  const lensSub = document.getElementById('lensSub');
+  const countDenom = document.querySelector('.count-denom');
+
+  if (name === 'shoot') {
+    brandEl.textContent = '36 Shots';
+    lensCard.style.display = '';
+    lensEyebrow.textContent = "Today's lens";
+    const day = new Date().getDay();
+    const lens = SHOT_LENSES[day % SHOT_LENSES.length];
+    lensText.textContent = lens.text; lensSub.textContent = lens.sub;
+    document.getElementById('countNum').textContent = filledCount;
+    document.getElementById('progressFill').style.width = Math.round(filledCount/36*100) + '%';
+    countDenom.textContent = '/ 36';
+  } else if (name === 'circles') {
+    brandEl.textContent = '36 Circles';
+    lensCard.style.display = '';
+    lensEyebrow.textContent = "Today's prompt";
+    const day = new Date().getDay();
+    const prompt = CIRCLE_PROMPTS[day % CIRCLE_PROMPTS.length];
+    lensText.textContent = prompt; lensSub.textContent = 'Tap any circle. Let your hand decide.';
+    const cf = circles.filter(Boolean).length;
+    document.getElementById('countNum').textContent = cf;
+    document.getElementById('progressFill').style.width = Math.round(cf/36*100) + '%';
+    countDenom.textContent = '/ 36';
+  } else {
+    brandEl.textContent = name === 'week' ? 'This Week' : 'Reflect';
+    lensCard.style.display = 'none';
+    document.getElementById('countNum').textContent = filledCount;
+    document.getElementById('progressFill').style.width = Math.round(filledCount/36*100) + '%';
+    countDenom.textContent = '/ 36';
+  }
 }
 
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.textContent = msg; t.classList.add('show');
   clearTimeout(t._timer);
   t._timer = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
 function setLens() {
   const day = new Date().getDay();
-  const lens = LENSES[day % LENSES.length];
+  const lens = SHOT_LENSES[day % SHOT_LENSES.length];
   document.getElementById('lensText').textContent = lens.text;
   document.getElementById('lensSub').textContent = lens.sub;
   document.getElementById('weekBadge').textContent = 'Week ' + weekNumber;
@@ -642,10 +722,7 @@ function setLens() {
 
 async function loadData() {
   const fdata = await sb('GET', 'frames?device_id=eq.' + deviceId + '&week_number=eq.' + weekNumber + '&order=slot_index.asc');
-  if (fdata && fdata.length) {
-    fdata.forEach(f => { frames[f.slot_index] = f.image_url; });
-    filledCount = fdata.length;
-  }
+  if (fdata && fdata.length) { fdata.forEach(f => { frames[f.slot_index] = f.image_url; }); filledCount = fdata.length; }
   const mdata = await sb('GET', 'musings?device_id=eq.' + deviceId + '&week_number=eq.' + weekNumber + '&order=created_at.asc');
   if (mdata) musings = mdata;
   const rdata = await sb('GET', 'reflections?device_id=eq.' + deviceId + '&week_number=eq.' + weekNumber);
@@ -654,21 +731,20 @@ async function loadData() {
     if (r.patterns) document.getElementById('r-patterns').value = r.patterns;
     if (r.near_misses) document.getElementById('r-nearmisses').value = r.near_misses;
     if (r.week_colour) document.getElementById('r-colour').value = r.week_colour;
-    if (r.emotional_state) {
-      const tag = document.querySelector('.state-tag.' + r.emotional_state.toLowerCase());
-      if (tag) { tag.classList.add('sel'); selectedState = r.emotional_state; }
-    }
+    if (r.emotional_state) { const tag = document.querySelector('.state-tag.' + r.emotional_state.toLowerCase()); if (tag) { tag.classList.add('sel'); selectedState = r.emotional_state; } }
   }
+  // Load circles from localStorage
+  try {
+    const saved = localStorage.getItem('pg_circles_' + weekNumber);
+    if (saved) circles = JSON.parse(saved);
+  } catch(e) {}
 }
 
 async function init() {
   setLens();
   await loadData();
-  initGrid();
-  initRhythm();
-  initFilmStrip();
-  renderMusings();
-  updateCounter();
+  initGrid(); initRhythm(); initFilmStrip(); initCirclesGrid();
+  renderMusings(); updateShotsCounter();
   document.getElementById('loadingOverlay').classList.add('hidden');
 }
 
