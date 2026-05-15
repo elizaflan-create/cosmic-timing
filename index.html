@@ -56,17 +56,15 @@
   .screen.active { display: block; }
 
   /* SHOTS GRID */
-  .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; margin-bottom: 20px; }
-  .slot { aspect-ratio: 1; border-radius: 2px; background: var(--bg2); border: 0.5px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; transition: border-color 0.2s; }
-  .slot:active { opacity: 0.7; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 24px; }
+  .slot { aspect-ratio: 1; border-radius: 4px; background: var(--bg2); border: 0.5px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; transition: all 0.18s; gap: 6px; }
+  .slot:active { opacity: 0.75; transform: scale(0.97); }
   .slot.filled { border-color: var(--border2); }
-  .slot img { width: 100%; height: 100%; object-fit: cover; }
-  .slot-num { font-size: 8px; color: var(--text3); font-weight: 300; }
-  .slot.active-next { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold3); }
-
-  /* SHOOT BTN */
-  .shoot-btn { width: 100%; padding: 15px; border: 0.5px solid var(--border2); border-radius: 3px; font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic; color: var(--gold); background: var(--bg2); cursor: pointer; transition: all 0.2s; margin-bottom: 24px; }
-  .shoot-btn:active { background: var(--bg3); }
+  .slot img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+  .slot-num { font-size: 11px; color: var(--text3); font-weight: 300; }
+  .slot-add { font-size: 24px; color: var(--gold); opacity: 0.35; line-height: 1; }
+  .slot.active-next .slot-add { opacity: 0.75; }
+  .slot.active-next { border-color: var(--gold); }
 
   /* MUSING */
   .section-label { font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; font-weight: 400; }
@@ -220,8 +218,7 @@
   <!-- SHOOT SCREEN -->
   <div class="screen active" id="screen-shoot">
     <div class="grid" id="imageGrid"></div>
-    <button class="shoot-btn" onclick="document.getElementById('fileInput').click()">+ Add a frame</button>
-    <input type="file" id="fileInput" accept="image/*" capture="environment" multiple onchange="handleFiles(event)">
+    <input type="file" id="fileInput" accept="image/*" capture="environment" onchange="handleFiles(event)">
     <div class="section-label">A musing</div>
     <textarea class="musing-input" id="musingInput" placeholder="Something you noticed, felt, or can't stop thinking about…" rows="3"></textarea>
     <button class="musing-save-btn" onclick="saveMusing()">Save musing →</button>
@@ -386,11 +383,21 @@ function initGrid() {
       img.src = frames[i];
       slot.appendChild(img);
       slot.classList.add('filled');
+      // Tap filled slot to re-shoot it
+      slot.onclick = () => openCameraForSlot(i);
     } else {
-      slot.innerHTML = '<span class="slot-num">' + (i+1) + '</span>';
+      slot.innerHTML = '<span class="slot-add">+</span><span class="slot-num">' + (i+1) + '</span>';
+      slot.onclick = () => openCameraForSlot(i);
     }
     grid.appendChild(slot);
   }
+}
+
+function openCameraForSlot(idx) {
+  if (idx > filledCount) return; // can't skip ahead
+  const input = document.getElementById('fileInput');
+  input.dataset.targetSlot = idx;
+  input.click();
 }
 
 function initRhythm() {
@@ -445,34 +452,60 @@ async function handleFiles(event) {
   const files = Array.from(event.target.files);
   for (const file of files) {
     if (filledCount >= 36) break;
-    const idx = filledCount;
+    // Use targeted slot if set, otherwise next empty slot
+    const targetSlot = parseInt(event.target.dataset.targetSlot);
+    const idx = (!isNaN(targetSlot) && targetSlot <= filledCount) ? targetSlot : filledCount;
+    delete event.target.dataset.targetSlot;
     const reader = new FileReader();
     reader.onload = ev => {
+      const dataURL = ev.target.result;
+      // Show preview immediately
       const slot = document.getElementById('slot-' + idx);
       if (slot) {
         slot.innerHTML = '';
         const img = document.createElement('img');
-        img.src = ev.target.result;
+        img.src = dataURL;
         slot.appendChild(img);
         slot.classList.add('filled');
         slot.classList.remove('active-next');
+        slot.onclick = () => openCameraForSlot(idx);
       }
-      const nextSlot = document.getElementById('slot-' + (idx+1));
-      if (nextSlot) nextSlot.classList.add('active-next');
+      // Mark next unfilled slot as active
+      if (idx === filledCount) {
+        const nextSlot = document.getElementById('slot-' + (idx+1));
+        if (nextSlot && !nextSlot.classList.contains('filled')) nextSlot.classList.add('active-next');
+      }
       const thumb = document.querySelector('#filmStrip .film-thumb:nth-child(' + (idx+1) + ')');
-      if (thumb) { thumb.innerHTML = ''; const ti = document.createElement('img'); ti.src = ev.target.result; thumb.appendChild(ti); }
+      if (thumb) { thumb.innerHTML = ''; const ti = document.createElement('img'); ti.src = dataURL; thumb.appendChild(ti); }
       const pip = document.getElementById('pip-' + idx);
       if (pip) pip.classList.add('lit');
-      filledCount++;
+      // Save dataURL to localStorage immediately as fallback
+      frames[idx] = dataURL;
+      saveFramesLocal();
+      if (idx >= filledCount) filledCount = idx + 1;
       updateShotsCounter();
     };
     reader.readAsDataURL(file);
+    // Upload to Supabase in background — replace local entry with permanent URL when done
     uploadImage(file, idx).then(url => {
-      if (url) { frames[idx] = url; sb('POST', 'frames', { device_id: deviceId, week_number: weekNumber, slot_index: idx, image_url: url }); }
+      if (url) {
+        frames[idx] = url;
+        saveFramesLocal();
+        sb('POST', 'frames', { device_id: deviceId, week_number: weekNumber, slot_index: idx, image_url: url });
+      }
     });
   }
   showToast('Frame saved');
   event.target.value = '';
+}
+
+function saveFramesLocal() {
+  try {
+    const compact = frames.map((f, i) => f ? { i, url: f } : null).filter(Boolean);
+    localStorage.setItem('pg_frames_' + weekNumber, JSON.stringify(compact));
+  } catch(e) {
+    // localStorage quota exceeded — large dataURLs can fill it fast, fail silently
+  }
 }
 
 // CIRCLES
@@ -721,10 +754,31 @@ function setLens() {
 }
 
 async function loadData() {
-  const fdata = await sb('GET', 'frames?device_id=eq.' + deviceId + '&week_number=eq.' + weekNumber + '&order=slot_index.asc');
-  if (fdata && fdata.length) { fdata.forEach(f => { frames[f.slot_index] = f.image_url; }); filledCount = fdata.length; }
+  // Load frames — localStorage first (instant), then Supabase fills any gaps
+  try {
+    const localFrames = localStorage.getItem('pg_frames_' + weekNumber);
+    if (localFrames) {
+      const compact = JSON.parse(localFrames);
+      compact.forEach(f => { frames[f.i] = f.url; });
+      filledCount = compact.length;
+    }
+  } catch(e) {}
+
+  // Supabase fetch runs in parallel — overwrites local dataURLs with permanent URLs
+  sb('GET', 'frames?device_id=eq.' + deviceId + '&week_number=eq.' + weekNumber + '&order=slot_index.asc').then(fdata => {
+    if (fdata && fdata.length) {
+      fdata.forEach(f => { frames[f.slot_index] = f.image_url; });
+      // If Supabase has more frames than local (e.g. added on another device), update count
+      const sbCount = fdata.length;
+      if (sbCount > filledCount) filledCount = sbCount;
+      // Resave local with permanent URLs
+      saveFramesLocal();
+    }
+  });
+
   const mdata = await sb('GET', 'musings?device_id=eq.' + deviceId + '&week_number=eq.' + weekNumber + '&order=created_at.asc');
   if (mdata) musings = mdata;
+
   const rdata = await sb('GET', 'reflections?device_id=eq.' + deviceId + '&week_number=eq.' + weekNumber);
   if (rdata && rdata.length) {
     const r = rdata[0];
@@ -733,6 +787,7 @@ async function loadData() {
     if (r.week_colour) document.getElementById('r-colour').value = r.week_colour;
     if (r.emotional_state) { const tag = document.querySelector('.state-tag.' + r.emotional_state.toLowerCase()); if (tag) { tag.classList.add('sel'); selectedState = r.emotional_state; } }
   }
+
   // Load circles from localStorage
   try {
     const saved = localStorage.getItem('pg_circles_' + weekNumber);
