@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cosmic Timing">
+<meta name="theme-color" content="#0a0a0a">
+<title>Cosmic Timing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg: #0a0a0a;
+    --bg2: #141414;
+    --bg3: #1c1c1c;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --text: #f0ede6;
+    --text2: rgba(240,237,230,0.5);
+    --text3: rgba(240,237,230,0.25);
+    --accent: #c8b89a;
+    --accent2: #8a7a65;
+    --open: #7eb89a;
+    --neutral: #8a9ab8;
+    --activated: #c8956a;
+    --closed: #a87a8a;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; overflow: hidden; }
+
+  .app { display: flex; flex-direction: column; height: 100dvh; max-width: 480px; margin: 0 auto; position: relative; }
+
+  /* STATUS BAR */
+  .status-bar { padding: calc(var(--safe-top) + 8px) 20px 8px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .brand { font-family: 'DM Serif Display', serif; font-size: 13px; color: var(--accent); letter-spacing: 0.02em; }
+  .week-badge { font-size: 10px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* COUNTER */
+  .counter-section { padding: 12px 20px 16px; flex-shrink: 0; }
+  .counter-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+  .count-num { font-family: 'DM Serif Display', serif; font-size: 52px; color: var(--text); line-height: 1; }
+  .count-denom { font-size: 13px; color: var(--text3); align-self: flex-end; padding-bottom: 6px; }
+  .progress-track { height: 1px; background: var(--border); position: relative; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.5s ease; position: absolute; top: 0; left: 0; }
+
+  /* LENS PROMPT */
+  .lens-card { margin: 0 20px 16px; padding: 14px 16px; border: 0.5px solid var(--border2); border-radius: 8px; background: var(--bg2); flex-shrink: 0; }
+  .lens-eyebrow { font-size: 9px; letter-spacing: 0.14em; color: var(--text3); text-transform: uppercase; margin-bottom: 6px; }
+  .lens-text { font-family: 'DM Serif Display', serif; font-size: 17px; color: var(--text); line-height: 1.4; font-style: italic; }
+  .lens-sub { font-size: 11px; color: var(--text3); margin-top: 5px; line-height: 1.5; }
+
+  /* NAV */
+  .nav { display: flex; border-top: 0.5px solid var(--border); flex-shrink: 0; padding-bottom: var(--safe-bottom); }
+  .nav-btn { flex: 1; padding: 12px 4px; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); background: none; border: none; cursor: pointer; transition: color 0.2s; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .nav-btn.active { color: var(--accent); }
+  .nav-icon { font-size: 18px; line-height: 1; }
+
+  /* SCROLLABLE CONTENT */
+  .screen { display: none; flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding: 0 20px 20px; }
+  .screen.active { display: block; }
+
+  /* GRID */
+  .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; margin-bottom: 20px; }
+  .slot { aspect-ratio: 1; border-radius: 4px; background: var(--bg2); border: 0.5px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; transition: border-color 0.2s; }
+  .slot:active { opacity: 0.7; }
+  .slot.filled { border-color: var(--border2); }
+  .slot img { width: 100%; height: 100%; object-fit: cover; }
+  .slot-num { font-size: 8px; color: var(--text3); }
+  .slot.active-next { border-color: var(--accent2); box-shadow: 0 0 0 1px var(--accent2); }
+
+  /* ADD BUTTON */
+  .shoot-btn { width: 100%; padding: 16px; border: 0.5px solid var(--border2); border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); background: var(--bg2); cursor: pointer; transition: all 0.2s; margin-bottom: 20px; }
+  .shoot-btn:active { background: var(--bg3); }
+
+  /* MUSING */
+  .section-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+  .musing-input { width: 100%; background: transparent; border: none; border-bottom: 0.5px solid var(--border); padding: 8px 0; font-family: 'DM Mono', monospace; font-size: 14px; color: var(--text); resize: none; outline: none; min-height: 56px; line-height: 1.6; }
+  .musing-input::placeholder { color: var(--text3); font-style: italic; }
+  .musing-save-btn { margin-top: 10px; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent2); background: none; border: none; font-family: 'DM Mono', monospace; cursor: pointer; padding: 0; }
+
+  /* WEEK VIEW */
+  .rhythm-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 24px; }
+  .day-col { display: flex; flex-direction: column; gap: 3px; }
+  .day-lbl { font-size: 8px; color: var(--text3); text-align: center; letter-spacing: 0.06em; margin-bottom: 3px; }
+  .day-pip { height: 10px; border-radius: 2px; background: var(--bg3); border: 0.5px solid var(--border); transition: background 0.3s; }
+  .day-pip.lit { background: var(--accent); border-color: var(--accent); }
+
+  .film-strip { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; margin-bottom: 24px; }
+  .film-strip::-webkit-scrollbar { display: none; }
+  .film-thumb { flex: 0 0 72px; height: 72px; border-radius: 4px; background: var(--bg2); border: 0.5px solid var(--border); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .film-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .film-thumb .slot-num { font-size: 9px; color: var(--text3); }
+
+  .musings-list { display: flex; flex-direction: column; gap: 0; }
+  .musing-item { padding: 12px 0; border-bottom: 0.5px solid var(--border); font-size: 13px; color: var(--text2); line-height: 1.6; font-style: italic; }
+  .musing-time { font-size: 9px; color: var(--text3); margin-top: 4px; font-style: normal; }
+
+  .insight-block { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 8px; padding: 14px 16px; font-size: 13px; color: var(--text2); line-height: 1.7; margin-bottom: 20px; }
+  .insight-block strong { color: var(--text); font-weight: 400; }
+
+  /* REFLECT */
+  .reflect-card { border: 0.5px solid var(--border); border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; background: var(--bg2); }
+  .reflect-q { font-family: 'DM Serif Display', serif; font-size: 15px; color: var(--text); line-height: 1.4; margin-bottom: 10px; font-style: italic; }
+  .reflect-input { width: 100%; background: transparent; border: none; border-bottom: 0.5px solid var(--border); padding: 6px 0; font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text); resize: none; outline: none; min-height: 48px; line-height: 1.6; }
+  .reflect-input::placeholder { color: var(--text3); }
+
+  .state-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+  .state-tag { font-size: 10px; letter-spacing: 0.08em; padding: 5px 12px; border-radius: 20px; border: 0.5px solid var(--border2); color: var(--text2); cursor: pointer; font-family: 'DM Mono', monospace; background: transparent; transition: all 0.2s; text-transform: uppercase; }
+  .state-tag.open.sel { background: var(--open); border-color: var(--open); color: #0a0a0a; }
+  .state-tag.neutral.sel { background: var(--neutral); border-color: var(--neutral); color: #0a0a0a; }
+  .state-tag.activated.sel { background: var(--activated); border-color: var(--activated); color: #0a0a0a; }
+  .state-tag.closed.sel { background: var(--closed); border-color: var(--closed); color: #0a0a0a; }
+
+  .save-reflect-btn { width: 100%; padding: 14px; border: 0.5px solid var(--accent2); border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); background: transparent; cursor: pointer; margin-top: 8px; transition: all 0.2s; }
+  .save-reflect-btn:active { background: var(--bg2); }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: calc(80px + var(--safe-bottom)); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--accent); color: #0a0a0a; font-size: 11px; letter-spacing: 0.08em; padding: 8px 16px; border-radius: 20px; font-family: 'DM Mono', monospace; opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap; z-index: 100; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* LOADING */
+  .loading-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; transition: opacity 0.5s; }
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+  .loading-brand { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--accent); margin-bottom: 8px; }
+  .loading-sub { font-size: 11px; color: var(--text3); letter-spacing: 0.1em; }
+  .loading-dot { display: inline-block; animation: blink 1.2s infinite; }
+  .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%,80%,100%{opacity:0} 40%{opacity:1} }
+
+  input[type="file"] { display: none; }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-brand">Cosmic Timing</div>
+  <div class="loading-sub">loading<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>
+</div>
+
+<div class="app">
+  <div class="status-bar">
+    <div class="brand">Cosmic Timing</div>
+    <div class="week-badge" id="weekBadge">Week 1</div>
+  </div>
+
+  <div class="counter-section">
+    <div class="counter-row">
+      <div class="count-num" id="countNum">0</div>
+      <div class="count-denom">/ 36</div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="lens-card">
+    <div class="lens-eyebrow">Today's lens</div>
+    <div class="lens-text" id="lensText">What did you walk past without stopping?</div>
+    <div class="lens-sub" id="lensSub">No beautiful images required. Trust the impulse.</div>
+  </div>
+
+  <!-- SHOOT SCREEN -->
+  <div class="screen active" id="screen-shoot">
+    <div class="grid" id="imageGrid"></div>
+    <button class="shoot-btn" id="shootBtn" onclick="document.getElementById('fileInput').click()">+ Add a frame</button>
+    <input type="file" id="fileInput" accept="image/*" capture="environment" multiple onchange="handleFiles(event)">
+
+    <div class="section-label">A musing</div>
+    <textarea class="musing-input" id="musingInput" placeholder="Something you noticed, felt, or can't stop thinking about…" rows="3"></textarea>
+    <button class="musing-save-btn" onclick="saveMusing()">Save musing →</button>
+  </div>
+
+  <!-- WEEK SCREEN -->
+  <div class="screen" id="screen-week">
+    <div class="section-label">Rhythm this week</div>
+    <div class="rhythm-grid" id="rhythmGrid"></div>
+
+    <div class="insight-block" id="insightBlock">
+      <strong>0 of 36 frames.</strong> The week is open. Shoot without intention — the pattern will find you.
+    </div>
+
+    <div class="section-label">Film strip</div>
+    <div class="film-strip" id="filmStrip"></div>
+
+    <div class="section-label">Musings</div>
+    <div class="musings-list" id="musingsList">
+      <div class="musing-item" style="color:var(--text3); font-style:normal; font-size:12px;">No musings yet.</div>
+    </div>
+  </div>
+
+  <!-- REFLECT SCREEN -->
+  <div class="screen" id="screen-reflect">
+    <div class="reflect-card">
+      <div class="reflect-q">Looking across your 36 frames — what keeps appearing?</div>
+      <textarea class="reflect-input" id="r-patterns" placeholder="Edges. Light on surfaces. Things half-finished…" rows="3"></textarea>
+    </div>
+    <div class="reflect-card">
+      <div class="reflect-q">What did you almost photograph but didn't?</div>
+      <textarea class="reflect-input" id="r-nearmisses" placeholder="The near-misses often say more than the shots…" rows="3"></textarea>
+    </div>
+    <div class="reflect-card">
+      <div class="reflect-q">If this week had a colour, what would it be?</div>
+      <textarea class="reflect-input" id="r-colour" placeholder="And why that one?" rows="2"></textarea>
+    </div>
+    <div class="reflect-card">
+      <div class="reflect-q">Where are you right now?</div>
+      <div class="state-row">
+        <button class="state-tag open" onclick="selectState(this,'Open')">Open</button>
+        <button class="state-tag neutral" onclick="selectState(this,'Neutral')">Neutral</button>
+        <button class="state-tag activated" onclick="selectState(this,'Activated')">Activated</button>
+        <button class="state-tag closed" onclick="selectState(this,'Closed')">Closed</button>
+      </div>
+    </div>
+    <button class="save-reflect-btn" onclick="saveReflection()">Save reflection</button>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-btn active" onclick="switchScreen('shoot',this)">
+      <span class="nav-icon">○</span>shoot
+    </button>
+    <button class="nav-btn" onclick="switchScreen('week',this)">
+      <span class="nav-icon">◫</span>week
+    </button>
+    <button class="nav-btn" onclick="switchScreen('reflect',this)">
+      <span class="nav-icon">◎</span>reflect
+    </button>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://qlwyasdjhwarxjlwmrea.supabase.co';
+const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsd3lhc2RqaHdhcnhqbHdtcmVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4MTEzMjEsImV4cCI6MjA5NDM4NzMyMX0.iPXB-aD_l-OE44jba0YOzsVGQ_5_fckl1zWH8JDDAk4';
+
+const LENSES = [
+  { text: "What did you walk past without stopping?", sub: "No beautiful images required. Trust the impulse." },
+  { text: "Photograph something that isn't yours.", sub: "Borrowed light, borrowed space." },
+  { text: "What's in the corner of the room?", sub: "The edges hold what the centre forgets." },
+  { text: "Find something that is waiting.", sub: "Patience has a texture." },
+  { text: "What looks different in this light?", sub: "The same thing, seen again." },
+  { text: "Shoot something you usually ignore.", sub: "Familiarity is a form of blindness." },
+  { text: "What is almost finished?", sub: "The incomplete has its own beauty." },
+  { text: "Find a shadow.", sub: "What is casting it?" },
+  { text: "Photograph your hands' work today.", sub: "Evidence of being." },
+  { text: "What is trying to grow?", sub: "Even in unlikely places." },
+  { text: "Find something that has been repaired.", sub: "The mend tells the story." },
+  { text: "Photograph a threshold.", sub: "A door, a gate, a beginning." },
+  { text: "What are you circling around?", sub: "Let the camera go there first." },
+  { text: "Find the oldest thing near you.", sub: "Time has a face." },
+];
+
+// Device ID — persists across sessions
+let deviceId = localStorage.getItem('ct_device_id');
+if (!deviceId) {
+  deviceId = 'ct_' + Math.random().toString(36).substr(2,9) + '_' + Date.now();
+  localStorage.setItem('ct_device_id', deviceId);
+}
+
+let weekNumber = parseInt(localStorage.getItem('ct_week') || '1');
+let frames = new Array(36).fill(null); // {url, slot_index}
+let musings = [];
+let selectedState = '';
+let filledCount = 0;
+
+// Supabase helpers
+async function sb(method, path, body) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    method,
+    headers: {
+      'apikey': ANON_KEY,
+      'Authorization': 'Bearer ' + ANON_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': method === 'POST' ? 'return=representation' : ''
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (!res.ok) return null;
+  try { return await res.json(); } catch { return null; }
+}
+
+async function uploadImage(file, slotIndex) {
+  const ext = file.name.split('.').pop() || 'jpg';
+  const path = deviceId + '/w' + weekNumber + '/' + slotIndex + '.' + ext;
+  const res = await fetch(SUPABASE_URL + '/storage/v1/object/frames/' + path, {
+    method: 'POST',
+    headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Content-Type': file.type },
+    body: file
+  });
+  if (!res.ok) return null;
+  return SUPABASE_URL + '/storage/v1/object/public/frames/' + path;
+}
+
+// Init grid
+function initGrid() {
+  const grid = document.getElementById('imageGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 36; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'slot' + (i === filledCount ? ' active-next' : '');
+    slot.id = 'slot-' + i;
+    if (frames[i]) {
+      const img = document.createElement('img');
+      img.src = frames[i];
+      slot.appendChild(img);
+      slot.classList.add('filled');
+    } else {
+      slot.innerHTML = '<span class="slot-num">' + (i+1) + '</span>';
+    }
+    grid.appendChild(slot);
+  }
+}
+
+function initRhythm() {
+  const days = ['M','T','W','T','F','S','S'];
+  const grid = document.getElementById('rhythmGrid');
+  grid.innerHTML = '';
+  for (let d = 0; d < 7; d++) {
+    const col = document.createElement('div');
+    col.className = 'day-col';
+    col.innerHTML = '<div class="day-lbl">' + days[d] + '</div>';
+    for (let s = 0; s < 5; s++) {
+      const pip = document.createElement('div');
+      pip.className = 'day-pip';
+      pip.id = 'pip-' + (d*5+s);
+      col.appendChild(pip);
+    }
+    grid.appendChild(col);
+  }
+  // Light up filled
+  for (let i = 0; i < filledCount; i++) {
+    const pip = document.getElementById('pip-' + i);
+    if (pip) pip.classList.add('lit');
+  }
+}
+
+function initFilmStrip() {
+  const strip = document.getElementById('filmStrip');
+  strip.innerHTML = '';
+  for (let i = 0; i < 36; i++) {
+    const thumb = document.createElement('div');
+    thumb.className = 'film-thumb';
+    if (frames[i]) {
+      const img = document.createElement('img');
+      img.src = frames[i];
+      thumb.appendChild(img);
+    } else {
+      thumb.innerHTML = '<span class="slot-num">' + (i+1) + '</span>';
+    }
+    strip.appendChild(thumb);
+  }
+}
+
+function updateCounter() {
+  document.getElementById('countNum').textContent = filledCount;
+  document.getElementById('progressFill').style.width = Math.round(filledCount/36*100) + '%';
+
+  const insight = document.getElementById('insightBlock');
+  if (filledCount === 0) insight.innerHTML = '<strong>0 of 36 frames.</strong> The week is open. Shoot without intention — the pattern will find you.';
+  else if (filledCount < 12) insight.innerHTML = '<strong>' + filledCount + ' of 36.</strong> Early days. You\'re still deciding what to notice. Keep going without editing yourself.';
+  else if (filledCount < 24) insight.innerHTML = '<strong>' + filledCount + ' of 36.</strong> You\'re in the middle. Something is probably repeating — you might not see it yet.';
+  else if (filledCount < 36) insight.innerHTML = '<strong>' + filledCount + ' of 36.</strong> The last stretch. The final frames often reveal the most.';
+  else insight.innerHTML = '<strong>36 of 36.</strong> Complete. Head to Reflect — your week is waiting to be understood.';
+}
+
+// Handle file upload
+async function handleFiles(event) {
+  const files = Array.from(event.target.files);
+  for (const file of files) {
+    if (filledCount >= 36) break;
+    const idx = filledCount;
+    showToast('Saving frame ' + (idx+1) + '…');
+
+    // Show preview immediately
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const slot = document.getElementById('slot-' + idx);
+      if (slot) {
+        slot.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = ev.target.result;
+        slot.appendChild(img);
+        slot.classList.add('filled');
+        slot.classList.remove('active-next');
+      }
+      const nextSlot = document.getElementById('slot-' + (idx+1));
+      if (nextSlot) nextSlot.classList.add('active-next');
+
+      // Film strip
+      const thumb = document.querySelector('#filmStrip .film-thumb:nth-child(' + (idx+1) + ')');
+      if (thumb) {
+        thumb.innerHTML = '';
+        const timg = document.createElement('img');
+        timg.src = ev.target.result;
+        thumb.appendChild(timg);
+      }
+
+      // Rhythm pip
+      const pip = document.getElementById('pip-' + idx);
+      if (pip) pip.classList.add('lit');
+    };
+    reader.readAsDataURL(file);
+
+    // Upload to Supabase
+    const url = await uploadImage(file, idx);
+    if (url) {
+      frames[idx] = url;
+      await sb('POST', 'frames', { device_id: deviceId, week_number: weekNumber, slot_index: idx, image_url: url });
+    }
+
+    filledCount++;
+    updateCounter();
+  }
+  showToast('Saved ✓');
+  event.target.value = '';
+}
+
+async function saveMusing() {
+  const val = document.getElementById('musingInput').value.trim();
+  if (!val) return;
+  showToast('Saving…');
+  const result = await sb('POST', 'musings', { device_id: deviceId, week_number: weekNumber, content: val });
+  if (result) {
+    musings.push({ content: val, created_at: new Date().toISOString() });
+    renderMusings();
+    document.getElementById('musingInput').value = '';
+    showToast('Musing saved ✓');
+  }
+}
+
+function renderMusings() {
+  const list = document.getElementById('musingsList');
+  if (musings.length === 0) {
+    list.innerHTML = '<div class="musing-item" style="color:var(--text3);font-style:normal;font-size:12px;">No musings yet.</div>';
+    return;
+  }
+  list.innerHTML = musings.map(m => {
+    const d = new Date(m.created_at);
+    const time = d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+    return '<div class="musing-item">' + m.content + '<div class="musing-time">' + time + '</div></div>';
+  }).join('');
+}
+
+function selectState(el, state) {
+  document.querySelectorAll('.state-tag').forEach(t => t.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedState = state;
+}
+
+async function saveReflection() {
+  const data = {
+    device_id: deviceId,
+    week_number: weekNumber,
+    patterns: document.getElementById('r-patterns').value,
+    near_misses: document.getElementById('r-nearmisses').value,
+    week_colour: document.getElementById('r-colour').value,
+    emotional_state: selectedState
+  };
+  showToast('Saving reflection…');
+  // Upsert
+  await fetch(SUPABASE_URL + '/rest/v1/reflections', {
+    method: 'POST',
+    headers: {
+      'apikey': ANON_KEY,
+      'Authorization': 'Bearer ' + ANON_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'resolution=merge-duplicates'
+    },
+    body: JSON.stringify(data)
+  });
+  showToast('Reflection saved ✓');
+}
+
+function switchScreen(name, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// Load existing data from Supabase
+async function loadData() {
+  // Load frames
+  const fdata = await sb('GET', 'frames?device_id=eq.' + deviceId + '&week_number=eq.' + weekNumber + '&order=slot_index.asc');
+  if (fdata && fdata.length) {
+    fdata.forEach(f => { frames[f.slot_index] = f.image_url; });
+    filledCount = fdata.length;
+  }
+
+  // Load musings
+  const mdata = await sb('GET', 'musings?device_id=eq.' + deviceId + '&week_number=eq.' + weekNumber + '&order=created_at.asc');
+  if (mdata) musings = mdata;
+
+  // Load reflection
+  const rdata = await sb('GET', 'reflections?device_id=eq.' + deviceId + '&week_number=eq.' + weekNumber);
+  if (rdata && rdata.length) {
+    const r = rdata[0];
+    if (r.patterns) document.getElementById('r-patterns').value = r.patterns;
+    if (r.near_misses) document.getElementById('r-nearmisses').value = r.near_misses;
+    if (r.week_colour) document.getElementById('r-colour').value = r.week_colour;
+    if (r.emotional_state) {
+      const tag = document.querySelector('.state-tag.' + r.emotional_state.toLowerCase());
+      if (tag) { tag.classList.add('sel'); selectedState = r.emotional_state; }
+    }
+  }
+}
+
+// Daily lens — changes each day of the week
+function setLens() {
+  const day = new Date().getDay();
+  const lens = LENSES[day % LENSES.length];
+  document.getElementById('lensText').textContent = lens.text;
+  document.getElementById('lensSub').textContent = lens.sub;
+  document.getElementById('weekBadge').textContent = 'Week ' + weekNumber;
+}
+
+async function init() {
+  setLens();
+  await loadData();
+  initGrid();
+  initRhythm();
+  initFilmStrip();
+  renderMusings();
+  updateCounter();
+  document.getElementById('loadingOverlay').classList.add('hidden');
+}
+
+init();
+</script>
+</body>
+</html>
