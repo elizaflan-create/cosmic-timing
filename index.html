@@ -403,18 +403,20 @@ async function handleFiles(event) {
       // Rhythm pip
       const pip = document.getElementById('pip-' + idx);
       if (pip) pip.classList.add('lit');
+
+      // Update counter immediately — don't wait for upload
+      filledCount++;
+      updateCounter();
     };
     reader.readAsDataURL(file);
 
-    // Upload to Supabase
-    const url = await uploadImage(file, idx);
-    if (url) {
-      frames[idx] = url;
-      await sb('POST', 'frames', { device_id: deviceId, week_number: weekNumber, slot_index: idx, image_url: url });
-    }
-
-    filledCount++;
-    updateCounter();
+    // Upload to Supabase in background
+    uploadImage(file, idx).then(url => {
+      if (url) {
+        frames[idx] = url;
+        sb('POST', 'frames', { device_id: deviceId, week_number: weekNumber, slot_index: idx, image_url: url });
+      }
+    });
   }
   showToast('Saved ✓');
   event.target.value = '';
